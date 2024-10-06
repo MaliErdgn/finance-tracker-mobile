@@ -47,7 +47,7 @@ export default function TabLayout() {
           title: "Insights",
           tabBarIcon: ({ color, focused }) => (
             <MaterialCommunityIcons
-              name={focused ? "plus-box" : "plus-box-outline"}
+              name='chart-timeline-variant'
               size={24}
               color={color}
             />
