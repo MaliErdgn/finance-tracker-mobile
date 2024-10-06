@@ -78,7 +78,8 @@ const DataRow: React.FC<DataRowProps> = memo(
         {isExpanded && (
           <View style={styles.expandedContent}>
             <Text style={styles.cellText}>Tag Id: {exp.tag_id}</Text>
-            <Text style={styles.cellText}>Method_Id: {exp.method_id}</Text>
+            <Text style={styles.cellText}>Method Id: {exp.method_id}</Text>
+            <Text style={styles.cellText}>Type Id: {exp.type_id}</Text>
           </View>
         )}
       </React.Fragment>
