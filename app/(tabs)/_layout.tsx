@@ -29,7 +29,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="addData"
+        name="add-data"
         options={{
           title: "Add Data",
           tabBarIcon: ({ color, focused }) => (
