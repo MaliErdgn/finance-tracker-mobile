@@ -18,6 +18,7 @@ import { ListItem, Text, Divider } from "react-native-elements";
 import { Card } from "@rneui/base";
 import { Colors } from "@/constants/Colors";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { DATA_API_ADDRESS } from "@/constants/Variables";
 
 interface DataRowProps {
   exp: DataType;
@@ -49,7 +50,6 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 
 const DataRow: React.FC<DataRowProps> = memo(
   ({ exp, isExpanded, toggleExpand }) => {
-    console.log('Rendering DataRow for: ', exp.id);
     return (
       <React.Fragment key={exp.id}>
         <ListItem
@@ -110,7 +110,7 @@ const dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://51.20.113.113:4000/data");
+        const response = await axios.get(DATA_API_ADDRESS);
         setData(response.data);
       } catch (err) {
         console.error("Failed to fetch data: ", err);

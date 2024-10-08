@@ -47,3 +47,4 @@ export const TABS_CONFIGURATION = [
     },
 
 ];
+export const DATA_API_ADDRESS = "http://51.20.113.113:4000/data"
