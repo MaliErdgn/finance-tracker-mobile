@@ -9,12 +9,13 @@ import {
   LayoutAnimation,
   Platform,
   UIManager,
-  FlatList
+  FlatList,
+  Pressable
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
 import React from "react";
-import { ListItem, Text, Divider } from "react-native-elements";
+import { ListItem, Text, Divider, Tooltip } from "react-native-elements";
 import { Card } from "@rneui/base";
 import { Colors } from "@/constants/Colors";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
@@ -53,7 +54,7 @@ const DataRow: React.FC<DataRowProps> = memo(
     return (
       <React.Fragment key={exp.id}>
         <ListItem
-          containerStyle={styles.listItemContainer}
+          containerStyle={[styles.listItemContainer, styles.listItemSpacing, isExpanded && styles.listItemContainerExpanded]}
           onPress={() => toggleExpand(exp.id)}
         >
           <ListItem.Content>
@@ -70,17 +71,35 @@ const DataRow: React.FC<DataRowProps> = memo(
           <MaterialCommunityIcons
             name={isExpanded ? 'chevron-up' : 'chevron-down'}
             size={24}
-            color="#E5E7EB"
+            color={Colors.dark.primary}
           />
         </ListItem>
 
         {/* Expanded Content */}
         {isExpanded && (
-          <View style={styles.expandedContent}>
-            <Text style={styles.cellText}>Tag Id: {exp.tag_id}</Text>
-            <Text style={styles.cellText}>Method Id: {exp.method_id}</Text>
-            <Text style={styles.cellText}>Type Id: {exp.type_id}</Text>
-          </View>
+          <ListItem containerStyle={styles.expandedContent}>
+            <ListItem.Content style={{ flexDirection: "column" }}><Text style={styles.cellText}>
+              Tag Name: {exp.tag_id}
+            </Text>
+              <Text style={styles.cellText}>Method Name: {exp.method_id}</Text>
+              <Text style={styles.cellText}>Category Name: {exp.method_id}</Text>
+              <Text style={styles.cellText}>Type Name: {exp.type_id}</Text>
+              <ListItem.Content style={{ alignSelf: "flex-end", flexDirection: "row" }}>
+                  <MaterialCommunityIcons
+                    name="pencil"
+                    size={24}
+                    color={Colors.dark.primary}
+                    style={{ alignSelf: "flex-end", marginRight: 15 }}
+                  />
+                <MaterialCommunityIcons
+                  name="trash-can"
+                  size={24}
+                  color={Colors.dark.errors}
+                  style={{ alignSelf: "flex-end" }}
+                />
+              </ListItem.Content>
+            </ListItem.Content>
+          </ListItem>
         )}
       </React.Fragment>
     );
@@ -116,7 +135,7 @@ const dashboard = () => {
         console.error("Failed to fetch data: ", err);
       }
     };
-  
+
     fetchData();
   }, []);
 
@@ -124,49 +143,49 @@ const dashboard = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setExpandedRow((prevExpandedRow) => (prevExpandedRow === id ? null : id));
   }, []);
-  
+
 
 
   const keyExtractor = (exp: DataType) => exp.id.toString();
 
   return (
     <SafeAreaView style={styles.container}>
-        <Card.Title style={styles.cardTitle}>Expense/Income</Card.Title>
-        <Card containerStyle={styles.cardStyle}>
-          {/* Headers */}
-          <ListItem containerStyle={styles.headerContainer}>
-            <ListItem.Content>
-              <ListItem.Title style={styles.headerText}>Amount</ListItem.Title>
-            </ListItem.Content>
-            <ListItem.Content>
-              <ListItem.Title style={styles.headerText}>Date</ListItem.Title>
-            </ListItem.Content>
-            <ListItem.Content>
-              <ListItem.Title style={styles.headerText}>
-                Description
-              </ListItem.Title>
-            </ListItem.Content>
-            <ListItem.Content>
-              
-            </ListItem.Content>
-          </ListItem>
+      <Card containerStyle={styles.cardStyle}>
+      <Card.Title style={styles.cardTitle}>Expense/Income</Card.Title>
+        {/* Headers */}
+        <ListItem containerStyle={styles.headerContainer}>
+          <ListItem.Content>
+            <ListItem.Title style={styles.headerText}>Amount</ListItem.Title>
+          </ListItem.Content>
+          <ListItem.Content>
+            <ListItem.Title style={styles.headerText}>Date</ListItem.Title>
+          </ListItem.Content>
+          <ListItem.Content>
+            <ListItem.Title style={styles.headerText}>
+              Description
+            </ListItem.Title>
+          </ListItem.Content>
+          <ListItem.Content>
 
-          </Card>
+          </ListItem.Content>
+        </ListItem>
 
-          {/* Data */}
-          <FlatList
-            data={data}
-            keyExtractor={keyExtractor}
-            renderItem={({item}) => (
-              <DataRow exp={item} isExpanded={expandedRow === item.id} toggleExpand={toggleExpand} />
-            )} 
-            // TODO: Change number on web
-            initialNumToRender={10}
-            maxToRenderPerBatch={5}
-            windowSize={10}
-            contentContainerStyle={styles.scrollView}
-            ItemSeparatorComponent={() => <Divider />}
-            />
+      </Card>
+
+      {/* Data */}
+      <FlatList
+        data={data}
+        keyExtractor={keyExtractor}
+        renderItem={({ item }) => (
+          <DataRow exp={item} isExpanded={expandedRow === item.id} toggleExpand={toggleExpand} />
+        )}
+        // TODO: Change number on web
+        initialNumToRender={10}
+        maxToRenderPerBatch={5}
+        windowSize={10}
+        contentContainerStyle={styles.scrollView}
+      // ItemSeparatorComponent={() => <Divider />}
+      />
     </SafeAreaView>
   );
 };
@@ -180,7 +199,7 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flexGrow: 1,
-    padding: 16,
+    paddingVertical: 16,
   },
   view: {
     justifyContent: "center",
@@ -188,9 +207,9 @@ const styles = StyleSheet.create({
   },
   cellText: {
     fontSize: 14,
-    color: "#E5E7EB",
+    color: Colors.dark.text,
     textAlign: "center",
-    paddingVertical: 5,
+    // paddingVertical: 5,
   },
   headerText: {
     fontWeight: "bold",
@@ -198,28 +217,41 @@ const styles = StyleSheet.create({
     color: "#E5E7EB",
   },
   headerContainer: {
-    backgroundColor: Colors.dark.background,
-    paddingVertical: 10,
-    paddingHorizontal: 15,
+    backgroundColor: Colors.dark.surfaceItems,
     alignItems: "center",
   },
   cardStyle: {
     width: "100%",
-    paddingHorizontal: 0,
+    alignSelf: "center",
     backgroundColor: Colors.dark.background,
-    borderWidth: 0,
+    borderWidth: 0,  
+    marginHorizontal: 0,
+    paddingHorizontal: 0,
+    paddingBottom: 5,
   },
   listItemContainer: {
-    backgroundColor: Colors.dark.background,
+    backgroundColor: Colors.dark.surfaceItems,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    borderBottomRightRadius: 10,
+    borderBottomLeftRadius: 10,
+  },
+  listItemContainerExpanded: {
+    borderBottomRightRadius: 0,
+    borderBottomLeftRadius: 0,
+    borderColor: Colors.dark.primary,
     borderBottomWidth: 1,
-    borderColor: "#374151",
-    paddingVertical: 10,
   },
   cardTitle: {
     color: "#E5E7EB",
   },
   expandedContent: {
-    padding: 10,
-    backgroundColor: Colors.dark.backgroundDarker,
+    backgroundColor: Colors.dark.surfaceItems,
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
   },
+  listItemSpacing: {
+    marginTop: 5,
+  },
+
 });

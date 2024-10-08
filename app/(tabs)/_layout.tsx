@@ -14,6 +14,9 @@ export default function TabLayout() {
         tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
         headerShown: false,
         tabBarItemStyle: { margin: 3 },
+        tabBarStyle: {
+          backgroundColor: Colors[colorScheme ?? "light"].background, 
+        }
       }}
     >
       {TABS_CONFIGURATION.map((tab, index) => (
