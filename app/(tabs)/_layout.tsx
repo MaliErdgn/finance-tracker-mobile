@@ -3,6 +3,7 @@ import React from "react";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { TABS_CONFIGURATION } from "@/constants/Variables";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -15,71 +16,22 @@ export default function TabLayout() {
         tabBarItemStyle: { margin: 3 },
       }}
     >
-      <Tabs.Screen
-        name="dashboard"
-        options={{
-          title: "Dashboard",
-          tabBarIcon: ({ color, focused }) => (
-            <MaterialCommunityIcons
-              name={focused ? "view-dashboard" : "view-dashboard-outline"}
-              size={24}
-              color={color}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="add-data"
-        options={{
-          title: "Add Data",
-          tabBarIcon: ({ color, focused }) => (
-            <MaterialCommunityIcons
-              name={focused ? "plus-box" : "plus-box-outline"}
-              size={24}
-              color={color}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="insights"
-        options={{
-          title: "Insights",
-          tabBarIcon: ({ color, focused }) => (
-            <MaterialCommunityIcons
-              name='chart-timeline-variant'
-              size={24}
-              color={color}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="tags"
-        options={{
-          title: "tags",
-          tabBarIcon: ({ color, focused }) => (
-            <MaterialCommunityIcons
-              name={focused ? "tag" : "tag-outline"}
-              size={24}
-              color={color}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: "Settings",
-          tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons
-              name="dots-horizontal"
-              size={24}
-              color={color}
-            />
-          ),
-        }}
-      />
+      {TABS_CONFIGURATION.map((tab, index) => (
+        <Tabs.Screen
+          key={index}
+          name={tab.name}
+          options={{
+            title: tab.options.title,
+            tabBarIcon: ({color, focused}) => (
+              <MaterialCommunityIcons
+                name={focused ? tab.options.focused as keyof typeof MaterialCommunityIcons.glyphMap : tab.options.unfocused as keyof typeof MaterialCommunityIcons.glyphMap}
+                size={tab.options.size}
+                color={color}
+              />
+            )
+          }}
+        />
+      ))}
     </Tabs>
   );
 }

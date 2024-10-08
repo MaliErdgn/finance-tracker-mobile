@@ -160,6 +160,7 @@ const dashboard = () => {
             renderItem={({item}) => (
               <DataRow exp={item} isExpanded={expandedRow === item.id} toggleExpand={toggleExpand} />
             )} 
+            // TODO: Change number on web
             initialNumToRender={10}
             maxToRenderPerBatch={5}
             windowSize={10}
