@@ -2,7 +2,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { memo, useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { ListItem } from "@rneui/base";
-import { DataType } from "@/constants/types";
+import { DataType } from "@/constants/Types";
 import { Colors } from "@/constants/Colors";
 
 const formatDate = (dateString: Date) => {
@@ -45,13 +45,13 @@ const DataRow: React.FC<DataRowProps> = memo(
                     ]}
                     onPress={() => toggleExpand(exp.id)}
                 >
-                    <ListItem.Content>
+                    <ListItem.Content style={{ flex: 3 }}>
                         <Text style={styles.cellText}>{exp.amount}</Text>
                     </ListItem.Content>
-                    <ListItem.Content>
+                    <ListItem.Content style={{ flex: 3, alignItems: "center" }}>
                         <Text style={styles.cellText}>{formatDate(exp.time)}</Text>
                     </ListItem.Content>
-                    <ListItem.Content>
+                    <ListItem.Content style={{ flex: 5, alignItems: "center" }}>
                         <Text style={styles.cellText}>{exp.description}</Text>
                     </ListItem.Content>
 

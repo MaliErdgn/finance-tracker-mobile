@@ -22,7 +22,8 @@ import {
   TYPES_API_ADDRESS,
 } from "@/constants/Variables";
 import DataRow from "@/components/DataRow";
-import { DataType, Tag, Type, Method, Category } from "@/constants/types";
+import { DataType, Tag, Type, Method, Category } from "@/constants/Types";
+import HeaderArea from "@/components/HeaderArea";
 
 if (
   Platform.OS === "android" &&
@@ -163,30 +164,13 @@ const dashboard = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Card containerStyle={styles.cardStyle}>
-        {/* TODO: Fix header stylings */}
-        <Card.Title style={styles.cardTitle}>Expense/Income</Card.Title>
-        {/* Headers */}
-        <ListItem containerStyle={styles.headerContainer}>
-          <ListItem.Content>
-            <ListItem.Title style={styles.headerText}>Amount</ListItem.Title>
-          </ListItem.Content>
-          <ListItem.Content>
-            <ListItem.Title style={styles.headerText}>Date</ListItem.Title>
-          </ListItem.Content>
-          <ListItem.Content>
-            <ListItem.Title style={styles.headerText}>
-              Description
-            </ListItem.Title>
-          </ListItem.Content>
-          <ListItem.Content></ListItem.Content>
-        </ListItem>
-      </Card>
+      <HeaderArea></HeaderArea>
 
       {/* Data */}
       <FlatList
         data={data}
         keyExtractor={keyExtractor}
+        style={{ padding: 0 }}
         renderItem={({ item }) => (
           <DataRow
             exp={item}
@@ -218,34 +202,11 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flexGrow: 1,
-    paddingVertical: 8,
+    paddingBottom: 5,
+    paddingTop: 0,
   },
   view: {
     justifyContent: "center",
     alignItems: "center",
   },
-
-  headerText: {
-    fontWeight: "bold",
-    fontSize: 16,
-    color: "#E5E7EB",
-  },
-  headerContainer: {
-    backgroundColor: Colors.dark.surfaceItems,
-    alignItems: "center",
-  },
-  cardStyle: {
-    width: "100%",
-    alignSelf: "center",
-    backgroundColor: Colors.dark.background,
-    borderWidth: 0,
-    marginHorizontal: 0,
-    paddingHorizontal: 0,
-    paddingBottom: 5,
-  },
-
-  cardTitle: {
-    color: "#E5E7EB",
-  },
-
 });
