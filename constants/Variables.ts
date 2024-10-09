@@ -1,4 +1,3 @@
-// TODO: Add tabs and other constants
 export const TABS_CONFIGURATION = [
     {
         name: "dashboard",

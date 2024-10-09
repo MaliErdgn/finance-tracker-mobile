@@ -1,13 +1,12 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
-import { ThemedText } from '@/components/ThemedText'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 const tags = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.view}>
-        <ThemedText>Tags Page</ThemedText>
+        <Text>Tags Page</Text>
       </View>
     </SafeAreaView>
   )
