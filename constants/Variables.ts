@@ -1,5 +1,3 @@
-import { Colors } from "./Colors";
-
 export const TABS_CONFIGURATION = [
     {
         name: "add-data",
@@ -49,16 +47,6 @@ export const TABS_CONFIGURATION = [
 
 ];
 
-export const ADD_DATA_INPUTS_ICONS = [
-    {
-        label: "Enter The Amount",
-        leftIcon: {
-            name: "cash",
-            size: 24,
-            color: Colors.dark.text
-        }
-    }
-]
 //#region API ENDPOINTS
 export const DATA_API_ADDRESS = "http://51.20.113.113:4000/finance-tracker/api/expenses"
 

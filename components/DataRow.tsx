@@ -1,5 +1,5 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import React, { memo, useEffect } from "react";
+import React, { memo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { ListItem } from "@rneui/base";
 import { DataType } from "@/constants/Types";

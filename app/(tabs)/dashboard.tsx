@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import {
   StyleSheet,
   Dimensions,
@@ -11,8 +11,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
 import React from "react";
-import { ListItem, Text, Divider, Tooltip } from "@rneui/base";
-import { Card } from "@rneui/base";
+import { Text } from "@rneui/base";
 import { Colors } from "@/constants/Colors";
 import {
   CATEGORIES_API_ADDRESS,
@@ -24,6 +23,7 @@ import {
 import DataRow from "@/components/DataRow";
 import { DataType, Tag, Type, Method, Category } from "@/constants/Types";
 import HeaderArea from "@/components/HeaderArea";
+import { CategoryDataContext, ExpenseDataContext, MethodDataContext, TagDataContext, TypeDataContext } from "@/constants/Context";
 
 if (
   Platform.OS === "android" &&
@@ -33,13 +33,14 @@ if (
 }
 
 
-
 const dashboard = () => {
-  const [data, setData] = useState<DataType[] | null>([]);
-  const [tags, setTags] = useState<Tag[] | null>([]);
-  const [type, setType] = useState<Type[] | null>([]);
-  const [method, setMethod] = useState<Method[] | null>([]);
-  const [category, setCategory] = useState<Category[] | null>([]);
+
+  const { data, setData } = useContext(ExpenseDataContext);
+  const { tags, setTags } = useContext(TagDataContext);
+  const { methods, setMethods } = useContext(MethodDataContext);
+  const { types, setTypes } = useContext(TypeDataContext);
+  const { category, setCategory } = useContext(CategoryDataContext);
+
   const [screenWidth, setScreenWidth] = useState<ScaledSize>(
     Dimensions.get("window")
   );
@@ -76,7 +77,7 @@ const dashboard = () => {
     const fetchMethods = async () => {
       try {
         const response = await axios.get(METHOD_API_ADDRESS);
-        setMethod(response.data);
+        setMethods(response.data);
       } catch (err) {
         console.error("Failed to fetch methods", err);
       }
@@ -84,7 +85,7 @@ const dashboard = () => {
     const fetchTypes = async () => {
       try {
         const response = await axios.get(TYPES_API_ADDRESS);
-        setType(response.data);
+        setTypes(response.data);
       } catch (err) {
         console.error("Failed to fetch tags", err);
       }
@@ -105,7 +106,7 @@ const dashboard = () => {
     fetchCategories();
   }, []);
   const AssignMethod = (id: number): string => {
-    const assignedMethod = method?.find((m) => m.id === id);
+    const assignedMethod = methods?.find((m) => m.id === id);
     if (assignedMethod) {
       return assignedMethod.method_name;
     } else {
@@ -114,7 +115,7 @@ const dashboard = () => {
   };
 
   const AssignType = (id: number): string => {
-    const assignedType = type?.find((t) => t.id === id);
+    const assignedType = types?.find((t) => t.id === id);
     if (assignedType) {
       return assignedType.type_name;
     } else {
