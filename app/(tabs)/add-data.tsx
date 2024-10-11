@@ -28,30 +28,63 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 
 const addData = () => {
-  const { data } = useContext(ExpenseDataContext);
+  // const { data } = useContext(ExpenseDataContext);
   const { tags } = useContext(TagDataContext);
   const { methods } = useContext(MethodDataContext);
   const { types } = useContext(TypeDataContext);
   const { category } = useContext(CategoryDataContext);
 
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [amount, setAmount] = useState<number>()
+  const [selectedTag, setSelectedTag] = useState<number | null>(tags?.find((tag) => tag.tag_name === "Personal")?.id ?? null)
+  const [selectedMethod, setSelectedMethod] = useState<number | null>(methods?.find((m) => m.method_name === "Credit Card")?.id ?? null)
+  const [selectedType, setSelectedType] = useState<number | null>(types?.find((t) => t.type_name === "Expense")?.id ?? null)
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(category?.find((c) => c.category_name === "Personal")?.id ?? null)
+  const [selectedDate, setSelectedDate] = useState<string | null>(new Date().toLocaleDateString());
+  const [description, setDescription] = useState<string>("")
 
-  // Show Date Picker
+
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+
+  const filteredTags = selectedCategory ? tags?.filter((tag) => tag.category_id === selectedCategory) : [];
+
+
   const showDatePicker = () => {
     setDatePickerVisibility(true);
   };
 
-  // Hide Date Picker
   const hideDatePicker = () => {
     setDatePickerVisibility(false);
   };
 
-  // Handle Confirm Date
   const handleConfirm = (date: any) => {
     setSelectedDate(date.toLocaleDateString()); // Set the selected date
     hideDatePicker(); // Close the picker
   };
+
+  const handleDataSubmit = () => {
+    console.log("Amount: ", amount)
+    console.log("Selected Category: ", selectedCategory)
+    console.log("Selected Tag: ", selectedTag)
+    console.log("Selected Date: ", selectedDate)
+    console.log("Selected Method: ", selectedMethod)
+    console.log("Selected Type: ", selectedType)
+    console.log("Description: ", description)
+  }
+
+  const onCategoryChange = (value: number | null) => {
+    setSelectedCategory(value);
+    const matchingTags = tags?.filter((tag) => tag.category_id === value)
+    console.log("Selected Tag exists")
+    if (matchingTags?.some((tag) => tag.id === selectedTag)) {
+      console.log("selected tag  exists under this category")
+      console.log("matchingTags[0].id: ", matchingTags[0].id)
+    } else {
+      console.log("selected tag does not exist under this category")
+      if (matchingTags) {
+        setSelectedTag(matchingTags[0].id)
+      }
+    }
+  }
 
   return (
     // <KeyboardAvoidingView
@@ -87,6 +120,8 @@ const addData = () => {
                 label={"Enter The Amount"}
                 keyboardType="numeric"
                 inputMode="numeric"
+                value={amount ? amount.toString() : ""}
+                onChangeText={value => setAmount(Number(value))}
                 placeholderTextColor={Colors.dark.text}
                 inputStyle={styles.amountInput}
                 leftIcon={
@@ -139,12 +174,14 @@ const addData = () => {
                   mode="dropdown"
                   dropdownIconColor={Colors.dark.primary}
                   style={styles.picker}
+                  selectedValue={selectedCategory}
+                  onValueChange={value => onCategoryChange(value)}
                 >
                   {category?.map((c) => (
                     <Picker.Item
                       key={c.id}
                       label={c.category_name}
-                      value={c.category_name}
+                      value={c.id}
                       style={styles.pickerItem}
                     ></Picker.Item>
                   ))}
@@ -157,17 +194,20 @@ const addData = () => {
                   mode="dropdown"
                   dropdownIconColor={Colors.dark.primary}
                   style={styles.picker}
+                  selectedValue={selectedTag}
+                  onValueChange={(value) => setSelectedTag(value)}
                 >
-                  {tags?.map((t) => (
+                  {filteredTags?.map((t) => (
                     <Picker.Item
                       key={t.id}
                       label={t.tag_name}
-                      value={t.tag_name}
+                      value={t.id}
                       style={styles.pickerItem}
                     ></Picker.Item>
                   ))}
                 </Picker>
               </View>
+              {/* Methods */}
               <View style={styles.methodTypeContainer}>
                 <View style={[styles.fieldContainer, { flex: 1 }]}>
                   <Text style={styles.fieldLabel}>Method</Text>
@@ -175,12 +215,14 @@ const addData = () => {
                     mode="dropdown"
                     dropdownIconColor={Colors.dark.primary}
                     style={styles.picker}
+                    selectedValue={selectedMethod}
+                    onValueChange={(value) => setSelectedMethod(value)}
                   >
                     {methods?.map((m) => (
                       <Picker.Item
                         key={m.id}
                         label={m.method_name}
-                        value={m.method_name}
+                        value={m.id}
                         style={styles.pickerItem}
                       ></Picker.Item>
                     ))}
@@ -195,12 +237,14 @@ const addData = () => {
                     mode="dropdown"
                     dropdownIconColor={Colors.dark.primary}
                     style={styles.picker}
+                    selectedValue={selectedType}
+                    onValueChange={(value) => setSelectedType(value)}
                   >
                     {types?.map((ty) => (
                       <Picker.Item
                         key={ty.id}
                         label={ty.type_name}
-                        value={ty.type_name}
+                        value={ty.id}
                         style={styles.pickerItem}
                       ></Picker.Item>
                     ))}
@@ -213,6 +257,8 @@ const addData = () => {
                 label="Description"
                 inputMode="text"
                 keyboardType="default"
+                value={description}
+                onChangeText={setDescription}
                 placeholderTextColor={Colors.dark.text}
                 inputStyle={styles.amountInput}
                 leftIcon={
@@ -229,7 +275,7 @@ const addData = () => {
                 }}
               ></Input>
               {/* Submit */}
-              <TouchableOpacity style={styles.submitButton}>
+              <TouchableOpacity style={styles.submitButton} onPress={handleDataSubmit}>
                 <Text style={styles.dateButtonText}>Submit</Text>
               </TouchableOpacity>
             </View>

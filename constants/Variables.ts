@@ -1,4 +1,13 @@
 export const TABS_CONFIGURATION = [
+        {
+        name: "dashboard",
+        options: {
+            title: "Dashboard",
+            focused: "view-dashboard",
+            unfocused: "view-dashboard-outline",
+            size: 24,
+        },
+    },
     {
         name: "add-data",
         options: {
@@ -8,15 +17,7 @@ export const TABS_CONFIGURATION = [
             size: 24
         },
     },
-    {
-        name: "dashboard",
-        options: {
-            title: "Dashboard",
-            focused: "view-dashboard",
-            unfocused: "view-dashboard-outline",
-            size: 24,
-        },
-    },
+
     {
         name: "insights",
         options: {
