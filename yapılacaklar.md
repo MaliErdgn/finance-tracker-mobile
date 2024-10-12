@@ -1,0 +1,12 @@
+- dashbaordda data edit özelliği
+  - frontend
+  - backend
+- dashboardda data silme
+  - frontend
+  - backend
+- tags page
+  - edit tags
+  - add tags
+- insights page
+- settings page
+- user ekleme
