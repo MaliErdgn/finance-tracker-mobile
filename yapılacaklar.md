@@ -1,4 +1,5 @@
-- dashboardda income veya expense olduğuna göre sol borderin renk alması
+- ~~sorting~~
+- ~~dashboardda income veya expense olduğuna göre sol borderin renk alması~~
 - dashbaordda data edit özelliği
   - frontend
   - backend

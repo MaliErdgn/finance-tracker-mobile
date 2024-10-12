@@ -1,9 +1,10 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import React, { memo } from "react";
+import React, { memo, useContext } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { ListItem } from "@rneui/base";
 import { DataType } from "@/constants/Types";
 import { Colors } from "@/constants/Colors";
+import { TypeDataContext } from "@/constants/Context";
 
 const formatDate = (dateString: Date) => {
     const date = new Date(dateString);
@@ -35,11 +36,16 @@ const DataRow: React.FC<DataRowProps> = memo(
         AssignTag,
     }) => {
 
+
+        const transactionType = AssignType(exp.type_id);
+        const transactionStyle = transactionType === "Income" ? styles.Income : styles.Expense;
+
         return (
             <React.Fragment key={exp.id}>
                 <ListItem
                     containerStyle={[
                         styles.listItemContainer,
+                        transactionStyle,
                         styles.listItemSpacing,
                         isExpanded && styles.listItemContainerExpanded,
                     ]}
@@ -134,7 +140,7 @@ const styles = StyleSheet.create({
     listItemContainerExpanded: {
         borderBottomRightRadius: 0,
         borderBottomLeftRadius: 0,
-        borderColor: Colors.dark.primary,
+        // borderColor: Colors.dark.primary,
         borderBottomWidth: 1,
     },
     cellText: {
@@ -160,5 +166,13 @@ const styles = StyleSheet.create({
         flex: 1,
         textAlign: 'right',
         paddingRight: 20,
+    },
+    Expense: {
+        borderLeftWidth: 4,
+        borderColor: Colors.dark.errors,
+    },
+    Income: {
+        borderLeftWidth: 4,
+        borderColor: Colors.dark.secondary
     },
 })
