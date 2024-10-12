@@ -1,3 +1,4 @@
+- dashboardda income veya expense olduğuna göre sol borderin renk alması
 - dashbaordda data edit özelliği
   - frontend
   - backend
