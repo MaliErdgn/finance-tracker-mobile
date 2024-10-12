@@ -1,9 +1,23 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React from "react";
 import { Colors } from "@/constants/Colors";
-import { Card, ListItem } from '@rneui/base'
+import { Card, ListItem } from "@rneui/base";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
-const HeaderArea = () => {
+const HeaderArea = ({
+    setSortBy,
+    sortOrder,
+    setSortOrder,
+}: {
+    setSortBy: (value: string) => void;
+    sortOrder: "asc" | "desc";
+    setSortOrder: (value: "asc" | "desc") => void;
+}) => {
+
+    const changeSortOrder = () => {
+        sortOrder === "asc" ? setSortOrder("desc") : setSortOrder("asc")
+    }
+
     return (
         <Card containerStyle={styles.cardStyle}>
             {/* TODO: Fix header stylings */}
@@ -11,23 +25,37 @@ const HeaderArea = () => {
             {/* Headers */}
             <ListItem containerStyle={styles.headerContainer}>
                 <ListItem.Content style={{ flex: 3 }}>
-                    <ListItem.Title style={styles.headerText}>Amount</ListItem.Title>
+                    <TouchableOpacity onPress={() => setSortBy("amount")}>
+                        <ListItem.Title style={styles.headerText}>Amount</ListItem.Title>
+                    </TouchableOpacity>
                 </ListItem.Content>
                 <ListItem.Content style={{ flex: 3, alignItems: "center" }}>
-                    <ListItem.Title style={styles.headerText}>Date</ListItem.Title>
+                    <TouchableOpacity onPress={() => setSortBy("date")}>
+                        <ListItem.Title style={styles.headerText}>Date</ListItem.Title>
+                    </TouchableOpacity>
                 </ListItem.Content>
                 <ListItem.Content style={{ flex: 5, alignItems: "center" }}>
-                    <ListItem.Title style={styles.headerText}>
-                        Description
-                    </ListItem.Title>
+                    <TouchableOpacity
+                        onPress={() => {
+                            setSortBy("description");
+                        }}
+                    >
+                        <ListItem.Title style={styles.headerText}>
+                            Description
+                        </ListItem.Title>
+                    </TouchableOpacity>
                 </ListItem.Content>
-                <ListItem.Content></ListItem.Content>
+                <TouchableOpacity onPress={() => changeSortOrder()}>
+                    <ListItem.Content>
+                        <MaterialCommunityIcons name={sortOrder === "asc" ? "sort-ascending" : "sort-descending"} size={20} color={Colors.dark.primary}></MaterialCommunityIcons>
+                    </ListItem.Content>
+                </TouchableOpacity>
             </ListItem>
         </Card>
-    )
-}
+    );
+};
 
-export default HeaderArea
+export default HeaderArea;
 
 const styles = StyleSheet.create({
     cardStyle: {
@@ -49,7 +77,6 @@ const styles = StyleSheet.create({
         margin: 0,
     },
 
-
     headerText: {
         fontWeight: "bold",
         fontSize: 16,
@@ -62,4 +89,4 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderColor: Colors.dark.primary,
     },
-})
+});

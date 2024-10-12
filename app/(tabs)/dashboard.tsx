@@ -42,20 +42,46 @@ const dashboard = () => {
   const { types, setTypes } = useContext(TypeDataContext);
   const { category, setCategory } = useContext(CategoryDataContext);
 
-  const [screenWidth, setScreenWidth] = useState<ScaledSize>(
-    Dimensions.get("window")
-  );
+
   const [expandedRow, setExpandedRow] = useState<number | null>(null);
 
-  useEffect(() => {
-    const handleResize = (): void => {
-      setScreenWidth(Dimensions.get("window"));
-    };
-    const subscription = Dimensions.addEventListener("change", handleResize);
+  const [sortBy, setSortBy] = useState<string | null>("date")
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">('desc')
 
-    return () => {
-      subscription?.remove();
+  useEffect(() => {
+    const fetchMethods = async () => {
+      try {
+        const response = await axios.get(METHOD_API_ADDRESS);
+        setMethods(response.data);
+      } catch (err) {
+        console.error("Failed to fetch methods", err);
+      }
     };
+
+    const fetchTypes = async () => {
+      try {
+        const response = await axios.get(TYPES_API_ADDRESS);
+        setTypes(response.data);
+      } catch (err) {
+        console.error("Failed to fetch tags", err);
+      }
+    };
+
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get(CATEGORIES_API_ADDRESS);
+        setCategory(response.data);
+      } catch (err) {
+        console.error("Failed to fetch tags", err);
+      }
+    };
+
+    fetchMethods();
+    fetchTypes();
+    fetchCategories();
+
+
+
   }, []);
 
   useFocusEffect(
@@ -78,38 +104,10 @@ const dashboard = () => {
         }
       };
 
-      const fetchMethods = async () => {
-        try {
-          const response = await axios.get(METHOD_API_ADDRESS);
-          setMethods(response.data);
-        } catch (err) {
-          console.error("Failed to fetch methods", err);
-        }
-      };
-
-      const fetchTypes = async () => {
-        try {
-          const response = await axios.get(TYPES_API_ADDRESS);
-          setTypes(response.data);
-        } catch (err) {
-          console.error("Failed to fetch tags", err);
-        }
-      };
-
-      const fetchCategories = async () => {
-        try {
-          const response = await axios.get(CATEGORIES_API_ADDRESS);
-          setCategory(response.data);
-        } catch (err) {
-          console.error("Failed to fetch tags", err);
-        }
-      };
 
       fetchData();
       fetchTags();
-      fetchMethods();
-      fetchTypes();
-      fetchCategories();
+
     }, [])
   );
 
@@ -162,6 +160,28 @@ const dashboard = () => {
 
   const keyExtractor = (exp: DataType) => exp.id.toString();
 
+  const sortData = (data: DataType[]) => {
+    if (!sortBy) return data
+
+    return [...data].sort((a, b) => {
+      if (sortBy === 'amount') {
+        return sortOrder === 'asc' ? a.amount - b.amount : b.amount - a.amount
+      } else if (sortBy === "date") {
+        const dateA = new Date(a.time).getTime();
+        const dateB = new Date(b.time).getTime();
+        return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+      } else if (sortBy === "description") {
+        const descA = a.description || "";
+        const descB = b.description || "";
+
+        return sortOrder === "asc"
+          ? descA.localeCompare(descB)
+          : descB.localeCompare(descA);
+      }
+      return 0;
+    })
+  }
+
   if (!data || data.length === 0) {
     return (
       <SafeAreaView style={styles.container}>
@@ -173,11 +193,11 @@ const dashboard = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <HeaderArea></HeaderArea>
+      <HeaderArea setSortBy={setSortBy} sortOrder={sortOrder} setSortOrder={setSortOrder}></HeaderArea>
 
       {/* Data */}
       <FlatList
-        data={data}
+        data={sortData(data)}
         keyExtractor={keyExtractor}
         style={{ padding: 0 }}
         renderItem={({ item }) => (
