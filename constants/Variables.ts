@@ -59,4 +59,5 @@ export const METHOD_API_ADDRESS = "http://51.20.113.113:4000/finance-tracker/api
 
 export const CATEGORIES_API_ADDRESS = "http://51.20.113.113:4000/finance-tracker/api/categories"
 
+export const ADD_DATA_API_ADDRESS = "http://51.20.113.113:4000/finance-tracker/api/add-expense"
 //#endregion

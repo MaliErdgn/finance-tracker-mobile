@@ -24,6 +24,7 @@ import DataRow from "@/components/DataRow";
 import { DataType, Tag, Type, Method, Category } from "@/constants/Types";
 import HeaderArea from "@/components/HeaderArea";
 import { CategoryDataContext, ExpenseDataContext, MethodDataContext, TagDataContext, TypeDataContext } from "@/constants/Context";
+import { useFocusEffect } from "expo-router";
 
 if (
   Platform.OS === "android" &&
@@ -57,54 +58,61 @@ const dashboard = () => {
     };
   }, []);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(DATA_API_ADDRESS);
-        setData(response.data);
-      } catch (err) {
-        console.error("Failed to fetch expenses: ", err);
-      }
-    };
-    const fetchTags = async () => {
-      try {
-        const response = await axios.get(TAGS_API_ADDRESS);
-        setTags(response.data);
-      } catch (err) {
-        console.error("Failed to fetch tags", err);
-      }
-    };
-    const fetchMethods = async () => {
-      try {
-        const response = await axios.get(METHOD_API_ADDRESS);
-        setMethods(response.data);
-      } catch (err) {
-        console.error("Failed to fetch methods", err);
-      }
-    };
-    const fetchTypes = async () => {
-      try {
-        const response = await axios.get(TYPES_API_ADDRESS);
-        setTypes(response.data);
-      } catch (err) {
-        console.error("Failed to fetch tags", err);
-      }
-    };
-    const fetchCategories = async () => {
-      try {
-        const response = await axios.get(CATEGORIES_API_ADDRESS);
-        setCategory(response.data);
-      } catch (err) {
-        console.error("Failed to fetch tags", err);
-      }
-    };
+  useFocusEffect(
+    useCallback(() => {
+      const fetchData = async () => {
+        try {
+          const response = await axios.get(DATA_API_ADDRESS);
+          setData(response.data);
+        } catch (err) {
+          console.error("Failed to fetch expenses: ", err);
+        }
+      };
 
-    fetchData();
-    fetchTags();
-    fetchMethods();
-    fetchTypes();
-    fetchCategories();
-  }, []);
+      const fetchTags = async () => {
+        try {
+          const response = await axios.get(TAGS_API_ADDRESS);
+          setTags(response.data);
+        } catch (err) {
+          console.error("Failed to fetch tags", err);
+        }
+      };
+
+      const fetchMethods = async () => {
+        try {
+          const response = await axios.get(METHOD_API_ADDRESS);
+          setMethods(response.data);
+        } catch (err) {
+          console.error("Failed to fetch methods", err);
+        }
+      };
+
+      const fetchTypes = async () => {
+        try {
+          const response = await axios.get(TYPES_API_ADDRESS);
+          setTypes(response.data);
+        } catch (err) {
+          console.error("Failed to fetch tags", err);
+        }
+      };
+
+      const fetchCategories = async () => {
+        try {
+          const response = await axios.get(CATEGORIES_API_ADDRESS);
+          setCategory(response.data);
+        } catch (err) {
+          console.error("Failed to fetch tags", err);
+        }
+      };
+
+      fetchData();
+      fetchTags();
+      fetchMethods();
+      fetchTypes();
+      fetchCategories();
+    }, [])
+  );
+
   const AssignMethod = (id: number): string => {
     const assignedMethod = methods?.find((m) => m.id === id);
     if (assignedMethod) {

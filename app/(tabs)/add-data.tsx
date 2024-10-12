@@ -1,12 +1,7 @@
 import {
-  Button,
-  KeyboardAvoidingView,
-  Modal,
   Platform,
-  ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -18,17 +13,19 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 import {
   CategoryDataContext,
-  ExpenseDataContext,
   MethodDataContext,
   TagDataContext,
   TypeDataContext,
 } from "@/constants/Context";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { ADD_DATA_API_ADDRESS } from "@/constants/Variables";
+import axios from "axios";
+import moment from 'moment'
+import { useNavigation } from "@react-navigation/native";
 
 
 const addData = () => {
-  // const { data } = useContext(ExpenseDataContext);
   const { tags } = useContext(TagDataContext);
   const { methods } = useContext(MethodDataContext);
   const { types } = useContext(TypeDataContext);
@@ -45,7 +42,12 @@ const addData = () => {
 
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
+
+  const navigation = useNavigation();
+
   const filteredTags = selectedCategory ? tags?.filter((tag) => tag.category_id === selectedCategory) : [];
+
+
 
 
   const showDatePicker = () => {
@@ -62,6 +64,7 @@ const addData = () => {
   };
 
   const handleDataSubmit = () => {
+    const formattedDate = moment(selectedDate, "DD/MM/YYYY").format("YYYY-MM-DD")
     console.log("Amount: ", amount)
     console.log("Selected Category: ", selectedCategory)
     console.log("Selected Tag: ", selectedTag)
@@ -69,7 +72,27 @@ const addData = () => {
     console.log("Selected Method: ", selectedMethod)
     console.log("Selected Type: ", selectedType)
     console.log("Description: ", description)
+    addExpense(formattedDate, description || null);
   }
+
+  const addExpense = async (formattedDate: string, description: string | null) => {
+    try {
+      const response = await axios.post(ADD_DATA_API_ADDRESS, {
+        amount: amount,
+        time: formattedDate,
+        description: description,
+        type_id: selectedType,
+        tag_id: selectedTag,
+        method_id: selectedMethod,
+      });
+
+      console.log(response.data);
+      (navigation as any).navigate("dashboard")
+    } catch (error: any) {
+      console.error("Error adding expense:", error.response?.data || error.message);
+    }
+  };
+
 
   const onCategoryChange = (value: number | null) => {
     setSelectedCategory(value);
