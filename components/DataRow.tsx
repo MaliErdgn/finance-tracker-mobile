@@ -1,10 +1,10 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import React, { memo } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import React, { memo, useEffect, useState } from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { ListItem } from "@rneui/base";
 import { DataType } from "@/constants/Types";
 import { Colors } from "@/constants/Colors";
-import { TypeDataContext } from "@/constants/Context";
+
 
 const formatDate = (dateString: Date) => {
     const date = new Date(dateString);
@@ -17,11 +17,15 @@ const formatDate = (dateString: Date) => {
 interface DataRowProps {
     exp: DataType;
     isExpanded: boolean;
+    deleting: boolean;
+    editing: boolean;
     toggleExpand: (id: number) => void;
     AssignMethod: (id: number) => string;
     AssignType: (id: number) => string;
     AssignCategory: (id: number) => string;
     AssignTag: (id: number) => string;
+    deleteData: (id: number) => void;
+    editData:(id: number) => void;
 }
 
 
@@ -34,11 +38,17 @@ const DataRow: React.FC<DataRowProps> = memo(
         AssignCategory,
         AssignType,
         AssignTag,
+        deleting,
+        deleteData,
+        editing,
+        editData
+
     }) => {
 
 
         const transactionType = AssignType(exp.type_id);
         const transactionStyle = transactionType === "Income" ? styles.Income : styles.Expense;
+
 
         return (
             <React.Fragment key={exp.id}>
@@ -99,18 +109,22 @@ const DataRow: React.FC<DataRowProps> = memo(
                             <ListItem.Content
                                 style={{ alignSelf: "flex-end", flexDirection: "row" }}
                             >
-                                <MaterialCommunityIcons
-                                    name="pencil"
-                                    size={24}
-                                    color={Colors.dark.primary}
-                                    style={{ alignSelf: "flex-end", marginRight: 15 }}
-                                />
-                                <MaterialCommunityIcons
-                                    name="trash-can"
-                                    size={24}
-                                    color={Colors.dark.errors}
-                                    style={{ alignSelf: "flex-end" }}
-                                />
+                                <TouchableOpacity onPress={() => editData(exp.id)}>
+                                    <MaterialCommunityIcons
+                                        name="pencil"
+                                        size={24}
+                                        color={Colors.dark.primary}
+                                        style={{ alignSelf: "flex-end", marginRight: 15 }}
+                                    />
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => deleteData(exp.id)}>
+                                    <MaterialCommunityIcons
+                                        name="trash-can"
+                                        size={24}
+                                        color={Colors.dark.errors}
+                                        style={{ alignSelf: "flex-end" }}
+                                    />
+                                </TouchableOpacity>
                             </ListItem.Content>
                         </ListItem.Content>
                     </ListItem>

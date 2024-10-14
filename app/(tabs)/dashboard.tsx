@@ -7,6 +7,10 @@ import {
   Platform,
   UIManager,
   FlatList,
+  View,
+  Button,
+  Modal,
+  TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
@@ -23,8 +27,15 @@ import {
 import DataRow from "@/components/DataRow";
 import { DataType, Tag, Type, Method, Category } from "@/constants/Types";
 import HeaderArea from "@/components/HeaderArea";
-import { CategoryDataContext, ExpenseDataContext, MethodDataContext, TagDataContext, TypeDataContext } from "@/constants/Context";
+import {
+  CategoryDataContext,
+  ExpenseDataContext,
+  MethodDataContext,
+  TagDataContext,
+  TypeDataContext,
+} from "@/constants/Context";
 import { useFocusEffect } from "expo-router";
+import PopupDialog from "react-native-popup-dialog";
 
 if (
   Platform.OS === "android" &&
@@ -33,20 +44,23 @@ if (
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-
 const dashboard = () => {
-
   const { data, setData } = useContext(ExpenseDataContext);
   const { tags, setTags } = useContext(TagDataContext);
   const { methods, setMethods } = useContext(MethodDataContext);
   const { types, setTypes } = useContext(TypeDataContext);
   const { category, setCategory } = useContext(CategoryDataContext);
 
-
   const [expandedRow, setExpandedRow] = useState<number | null>(null);
 
-  const [sortBy, setSortBy] = useState<string | null>("date")
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">('desc')
+  const [sortBy, setSortBy] = useState<string | null>("date");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+
+  const [deleting, setDeleting] = useState<boolean>(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+
+  const [editing, setEditing] = useState<boolean>(false)
+  const [editingId, setEditingId] = useState<number |null>(null)
 
   useEffect(() => {
     const fetchMethods = async () => {
@@ -79,9 +93,6 @@ const dashboard = () => {
     fetchMethods();
     fetchTypes();
     fetchCategories();
-
-
-
   }, []);
 
   useFocusEffect(
@@ -104,10 +115,8 @@ const dashboard = () => {
         }
       };
 
-
       fetchData();
       fetchTags();
-
     }, [])
   );
 
@@ -161,15 +170,15 @@ const dashboard = () => {
   const keyExtractor = (exp: DataType) => exp.id.toString();
 
   const sortData = (data: DataType[]) => {
-    if (!sortBy) return data
+    if (!sortBy) return data;
 
     return [...data].sort((a, b) => {
-      if (sortBy === 'amount') {
-        return sortOrder === 'asc' ? a.amount - b.amount : b.amount - a.amount
+      if (sortBy === "amount") {
+        return sortOrder === "asc" ? a.amount - b.amount : b.amount - a.amount;
       } else if (sortBy === "date") {
         const dateA = new Date(a.time).getTime();
         const dateB = new Date(b.time).getTime();
-        return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+        return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
       } else if (sortBy === "description") {
         const descA = a.description || "";
         const descB = b.description || "";
@@ -179,7 +188,31 @@ const dashboard = () => {
           : descB.localeCompare(descA);
       }
       return 0;
-    })
+    });
+  };
+
+  const deleteData = (id: number) => {
+    console.log("Deleting ID: ", id);
+    setDeletingId(id);
+    setDeleting(true);
+  };
+  useEffect(() => {
+    console.log("Deleting state changed: ", deleting);
+  }, [deleting]);
+
+  const deletingData = () => {
+    setDeleting(false)
+    console.log("ananısikm");
+  };
+
+  const editingData = () => {
+    setEditing(false)
+    console.log("ananısikm ama editleyerek");
+  };
+  const editData = (id: number) => {
+    console.log("editing: ", id);
+    setEditingId(id);
+    setEditing(true);
   }
 
   if (!data || data.length === 0) {
@@ -190,11 +223,47 @@ const dashboard = () => {
     );
   }
 
-
   return (
     <SafeAreaView style={styles.container}>
-      <HeaderArea setSortBy={setSortBy} sortOrder={sortOrder} setSortOrder={setSortOrder}></HeaderArea>
-
+      <HeaderArea
+        setSortBy={setSortBy}
+        sortOrder={sortOrder}
+        setSortOrder={setSortOrder}
+      ></HeaderArea>
+      <Modal
+        visible={deleting}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setDeleting(false)}
+      >
+        <View
+          style={{ padding: 20, backgroundColor: Colors.dark.surfaceItems }}
+        >
+          <Text style={{ color: Colors.dark.text }}>
+            Are you sure you want to delete item with ID: {deletingId}?
+          </Text>
+          <TouchableOpacity onPress={() => deletingData()}>
+            <Text style={{ color: Colors.dark.text }}>Delete</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+      <Modal
+        visible={editing}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setEditing(false)}
+      >
+        <View
+          style={{ padding: 20, backgroundColor: Colors.dark.surfaceItems }}
+        >
+          <Text style={{ color: Colors.dark.text }}>
+            Are you sure you want to edit item with ID: {deletingId}?
+          </Text>
+          <TouchableOpacity onPress={() => editingData()}>
+            <Text style={{ color: Colors.dark.text }}>Edit</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
       {/* Data */}
       <FlatList
         data={sortData(data)}
@@ -209,6 +278,10 @@ const dashboard = () => {
             AssignMethod={AssignMethod}
             AssignTag={AssignTag}
             AssignType={AssignType}
+            deleting={deleting}
+            deleteData={deleteData}
+            editing={editing}
+            editData={editData}
           />
         )}
         // TODO: Change number on web
