@@ -36,6 +36,8 @@ import {
 } from "@/constants/Context";
 import { useFocusEffect } from "expo-router";
 import PopupDialog from "react-native-popup-dialog";
+import DeleteData from "@/components/DeleteData";
+import EditData from "@/components/EditData";
 
 if (
   Platform.OS === "android" &&
@@ -58,9 +60,13 @@ const dashboard = () => {
 
   const [deleting, setDeleting] = useState<boolean>(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [deletingAmount, setDeletingAmount] = useState<number | null>(null);
+  const [deletingTime, setDeletingTime] = useState<string | null>(null);
+  const [deletingDesc, setDeletingDesc] = useState<string | null>(null);
 
-  const [editing, setEditing] = useState<boolean>(false)
-  const [editingId, setEditingId] = useState<number |null>(null)
+
+  const [editing, setEditing] = useState<boolean>(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchMethods = async () => {
@@ -191,29 +197,26 @@ const dashboard = () => {
     });
   };
 
-  const deleteData = (id: number) => {
-    console.log("Deleting ID: ", id);
-    setDeletingId(id);
+  const confirmDelete = (item: DataType) => {
+    setDeletingId(item.id);
+    setDeletingAmount(item.amount);
+    setDeletingTime(new Date(item.time).toLocaleDateString());
+    setDeletingDesc(item.description);
     setDeleting(true);
   };
-  useEffect(() => {
-    console.log("Deleting state changed: ", deleting);
-  }, [deleting]);
 
-  const deletingData = () => {
-    setDeleting(false)
-    console.log("ananısikm");
+  const handleDelete = () => {
+    setDeleting(false);
   };
 
   const editingData = () => {
-    setEditing(false)
-    console.log("ananısikm ama editleyerek");
+    setEditing(false);
   };
   const editData = (id: number) => {
     console.log("editing: ", id);
     setEditingId(id);
     setEditing(true);
-  }
+  };
 
   if (!data || data.length === 0) {
     return (
@@ -230,40 +233,23 @@ const dashboard = () => {
         sortOrder={sortOrder}
         setSortOrder={setSortOrder}
       ></HeaderArea>
-      <Modal
-        visible={deleting}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setDeleting(false)}
-      >
-        <View
-          style={{ padding: 20, backgroundColor: Colors.dark.surfaceItems }}
-        >
-          <Text style={{ color: Colors.dark.text }}>
-            Are you sure you want to delete item with ID: {deletingId}?
-          </Text>
-          <TouchableOpacity onPress={() => deletingData()}>
-            <Text style={{ color: Colors.dark.text }}>Delete</Text>
-          </TouchableOpacity>
-        </View>
-      </Modal>
-      <Modal
-        visible={editing}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setEditing(false)}
-      >
-        <View
-          style={{ padding: 20, backgroundColor: Colors.dark.surfaceItems }}
-        >
-          <Text style={{ color: Colors.dark.text }}>
-            Are you sure you want to edit item with ID: {deletingId}?
-          </Text>
-          <TouchableOpacity onPress={() => editingData()}>
-            <Text style={{ color: Colors.dark.text }}>Edit</Text>
-          </TouchableOpacity>
-        </View>
-      </Modal>
+      <DeleteData
+        deleting={deleting}
+        setDeleting={setDeleting}
+        deletingId={deletingId}
+        deletingAmount={deletingAmount}
+        deletingTime={deletingTime}
+        deletingDesc={deletingDesc}
+        handleDelete={handleDelete}
+      />
+
+      <EditData
+        editing={editing}
+        setEditing={setEditing}
+        editingId={editingId}
+        editingData={editingData}
+      />
+
       {/* Data */}
       <FlatList
         data={sortData(data)}
@@ -279,17 +265,17 @@ const dashboard = () => {
             AssignTag={AssignTag}
             AssignType={AssignType}
             deleting={deleting}
-            deleteData={deleteData}
+            confirmDelete={() => confirmDelete(item)}
             editing={editing}
             editData={editData}
           />
         )}
-        // TODO: Change number on web
         initialNumToRender={10}
         maxToRenderPerBatch={5}
         windowSize={10}
         contentContainerStyle={styles.scrollView}
       />
+
     </SafeAreaView>
   );
 };

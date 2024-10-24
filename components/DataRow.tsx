@@ -24,8 +24,8 @@ interface DataRowProps {
     AssignType: (id: number) => string;
     AssignCategory: (id: number) => string;
     AssignTag: (id: number) => string;
-    deleteData: (id: number) => void;
-    editData:(id: number) => void;
+    confirmDelete: (id: number) => void;
+    editData: (id: number) => void;
 }
 
 
@@ -39,7 +39,7 @@ const DataRow: React.FC<DataRowProps> = memo(
         AssignType,
         AssignTag,
         deleting,
-        deleteData,
+        confirmDelete,
         editing,
         editData
 
@@ -117,7 +117,7 @@ const DataRow: React.FC<DataRowProps> = memo(
                                         style={{ alignSelf: "flex-end", marginRight: 15 }}
                                     />
                                 </TouchableOpacity>
-                                <TouchableOpacity onPress={() => deleteData(exp.id)}>
+                                <TouchableOpacity onPress={() => confirmDelete(exp.id)}>
                                     <MaterialCommunityIcons
                                         name="trash-can"
                                         size={24}
