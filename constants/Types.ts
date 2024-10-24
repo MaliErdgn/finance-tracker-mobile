@@ -29,3 +29,12 @@ export type Category = {
     id: number;
     category_name: string;
 };
+
+
+export type RootStackParamList = {
+  dashboard: undefined;
+  'add-data': undefined;
+  insights: undefined;
+  tags: undefined;
+  settings: undefined;
+};

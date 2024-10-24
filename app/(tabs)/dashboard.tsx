@@ -13,19 +13,14 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import axios from "axios";
+import axiosInstance from "../../api/axiosInstance";
+import { AxiosError } from "axios";
 import React from "react";
 import { Text } from "@rneui/base";
 import { Colors } from "@/constants/Colors";
-import {
-  CATEGORIES_API_ADDRESS,
-  DATA_API_ADDRESS,
-  METHOD_API_ADDRESS,
-  TAGS_API_ADDRESS,
-  TYPES_API_ADDRESS,
-} from "@/constants/Variables";
+
 import DataRow from "@/components/DataRow";
-import { DataType, Tag, Type, Method, Category } from "@/constants/Types";
+import { DataType, RootStackParamList } from "@/constants/Types";
 import HeaderArea from "@/components/HeaderArea";
 import {
   CategoryDataContext,
@@ -38,6 +33,8 @@ import { useFocusEffect } from "expo-router";
 import PopupDialog from "react-native-popup-dialog";
 import DeleteData from "@/components/DeleteData";
 import EditData from "@/components/EditData";
+import AsyncStorage from "@react-native-async-storage/async-storage"
+import { NavigationProp, useNavigation } from "@react-navigation/native";
 
 if (
   Platform.OS === "android" &&
@@ -46,7 +43,10 @@ if (
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-const dashboard = () => {
+type DashboardScreenNavigationProp = NavigationProp<RootStackParamList, 'dashboard'>;
+
+const Dashboard = () => {
+  const navigation = useNavigation<DashboardScreenNavigationProp>();
   const { data, setData } = useContext(ExpenseDataContext);
   const { tags, setTags } = useContext(TagDataContext);
   const { methods, setMethods } = useContext(MethodDataContext);
@@ -54,77 +54,109 @@ const dashboard = () => {
   const { category, setCategory } = useContext(CategoryDataContext);
 
   const [expandedRow, setExpandedRow] = useState<number | null>(null);
-
   const [sortBy, setSortBy] = useState<string | null>("date");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-
   const [deleting, setDeleting] = useState<boolean>(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [deletingAmount, setDeletingAmount] = useState<number | null>(null);
   const [deletingTime, setDeletingTime] = useState<string | null>(null);
   const [deletingDesc, setDeletingDesc] = useState<string | null>(null);
-
-
   const [editing, setEditing] = useState<boolean>(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchMethods = async () => {
-      try {
-        const response = await axios.get(METHOD_API_ADDRESS);
-        setMethods(response.data);
-      } catch (err) {
-        console.error("Failed to fetch methods", err);
+    const checkAuth = async () => {
+      const token = await AsyncStorage.getItem("token");
+      if (!token) {
+        navigation.navigate("settings");
       }
     };
-
-    const fetchTypes = async () => {
-      try {
-        const response = await axios.get(TYPES_API_ADDRESS);
-        setTypes(response.data);
-      } catch (err) {
-        console.error("Failed to fetch tags", err);
-      }
-    };
-
-    const fetchCategories = async () => {
-      try {
-        const response = await axios.get(CATEGORIES_API_ADDRESS);
-        setCategory(response.data);
-      } catch (err) {
-        console.error("Failed to fetch tags", err);
-      }
-    };
-
-    fetchMethods();
-    fetchTypes();
-    fetchCategories();
+    checkAuth();
   }, []);
+
 
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {
+        setLoading(true);
+        setError(null);
         try {
-          const response = await axios.get(DATA_API_ADDRESS);
+          const response = await axiosInstance.get("/expenses");
           setData(response.data);
-        } catch (err) {
+        } catch (err: any) {
           console.error("Failed to fetch expenses: ", err);
+          setError("Failed to fetch expenses");
+          if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+            await AsyncStorage.removeItem("token");
+            navigation.navigate("settings");
+          }
+        } finally {
+          setLoading(false);
         }
       };
 
       const fetchTags = async () => {
         try {
-          const response = await axios.get(TAGS_API_ADDRESS);
+          const response = await axiosInstance.get("/tags");
           setTags(response.data);
-        } catch (err) {
+        } catch (err: any) {
           console.error("Failed to fetch tags", err);
+          if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+            await AsyncStorage.removeItem("token");
+            navigation.navigate("settings");
+          }
         }
       };
+      const fetchMethods = async () => {
+        try {
+          const response = await axiosInstance.get("/methods");
+          setMethods(response.data);
+        } catch (err: any) {
+          console.error("Failed to fetch methods", err);
+          if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+            await AsyncStorage.removeItem("token");
+            navigation.navigate("settings");
+          }
+        }
+      };
+
+      const fetchTypes = async () => {
+        try {
+          const response = await axiosInstance.get("/types");
+          setTypes(response.data);
+        } catch (err: any) {
+          console.error("Failed to fetch types", err);
+          if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+            await AsyncStorage.removeItem("token");
+            navigation.navigate("settings");
+          }
+        }
+      };
+
+      const fetchCategories = async () => {
+        try {
+          const response = await axiosInstance.get("/categories");
+          setCategory(response.data);
+        } catch (err: any) {
+          console.error("Failed to fetch categories", err);
+          if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+            await AsyncStorage.removeItem("token");
+            navigation.navigate("settings");
+          }
+        }
+      };
+
+      fetchMethods();
+      fetchTypes();
+      fetchCategories();
 
       fetchData();
       fetchTags();
     }, [])
   );
+
 
   const AssignMethod = (id: number): string => {
     const assignedMethod = methods?.find((m) => m.id === id);
@@ -218,10 +250,26 @@ const dashboard = () => {
     setEditing(true);
   };
 
-  if (!data || data.length === 0) {
+  if (loading) {
     return (
       <SafeAreaView style={styles.container}>
         <Text>Loading...</Text>
+      </SafeAreaView>
+    );
+  }
+
+  if (error) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Text>{error}</Text>
+      </SafeAreaView>
+    );
+  }
+
+  if (!data || data.length === 0) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Text>No data available.</Text>
       </SafeAreaView>
     );
   }
@@ -232,7 +280,7 @@ const dashboard = () => {
         setSortBy={setSortBy}
         sortOrder={sortOrder}
         setSortOrder={setSortOrder}
-      ></HeaderArea>
+      />
       <DeleteData
         deleting={deleting}
         setDeleting={setDeleting}
@@ -242,15 +290,12 @@ const dashboard = () => {
         deletingDesc={deletingDesc}
         handleDelete={handleDelete}
       />
-
       <EditData
         editing={editing}
         setEditing={setEditing}
         editingId={editingId}
         editingData={editingData}
       />
-
-      {/* Data */}
       <FlatList
         data={sortData(data)}
         keyExtractor={keyExtractor}
@@ -275,13 +320,11 @@ const dashboard = () => {
         windowSize={10}
         contentContainerStyle={styles.scrollView}
       />
-
     </SafeAreaView>
   );
 };
 
-export default dashboard;
-
+export default Dashboard;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
