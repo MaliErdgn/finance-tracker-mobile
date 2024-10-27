@@ -11,6 +11,7 @@ import {
   Button,
   Modal,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import axiosInstance from "../../api/axiosInstance";
@@ -35,6 +36,10 @@ import DeleteData from "@/components/DeleteData";
 import EditData from "@/components/EditData";
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { CATEGORIES_API_ADDRESS, DATA_API_ADDRESS, DELETE_DATA_API_ADDRESS, DELETE_TAG_API_ADDRESS, DELETE_USER_API_ADDRESS, METHOD_API_ADDRESS, TAGS_API_ADDRESS, TYPES_API_ADDRESS } from "@/constants/Variables";
+import CustomPopup from '@/components/CustomPopup';
+
+
 
 if (
   Platform.OS === "android" &&
@@ -56,15 +61,20 @@ const Dashboard = () => {
   const [expandedRow, setExpandedRow] = useState<number | null>(null);
   const [sortBy, setSortBy] = useState<string | null>("date");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+
+
   const [deleting, setDeleting] = useState<boolean>(false);
-  const [deletingId, setDeletingId] = useState<number | null>(null);
-  const [deletingAmount, setDeletingAmount] = useState<number | null>(null);
-  const [deletingTime, setDeletingTime] = useState<string | null>(null);
-  const [deletingDesc, setDeletingDesc] = useState<string | null>(null);
-  const [editing, setEditing] = useState<boolean>(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<DataType | null>(null)
+
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [popupVisible, setPopupVisible] = useState<boolean>(false);
+  const [popupMessage, setPopupMessage] = useState<string>('');
+
+  const [editing, setEditing] = useState<boolean>(false);
+  const [itemToEdit, setItemToEdit] = useState<DataType | null>(null);
+
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -83,7 +93,7 @@ const Dashboard = () => {
         setLoading(true);
         setError(null);
         try {
-          const response = await axiosInstance.get("/expenses");
+          const response = await axiosInstance.get(DATA_API_ADDRESS);
           setData(response.data);
         } catch (err: any) {
           console.error("Failed to fetch expenses: ", err);
@@ -99,7 +109,7 @@ const Dashboard = () => {
 
       const fetchTags = async () => {
         try {
-          const response = await axiosInstance.get("/tags");
+          const response = await axiosInstance.get(TAGS_API_ADDRESS);
           setTags(response.data);
         } catch (err: any) {
           console.error("Failed to fetch tags", err);
@@ -111,7 +121,7 @@ const Dashboard = () => {
       };
       const fetchMethods = async () => {
         try {
-          const response = await axiosInstance.get("/methods");
+          const response = await axiosInstance.get(METHOD_API_ADDRESS);
           setMethods(response.data);
         } catch (err: any) {
           console.error("Failed to fetch methods", err);
@@ -124,7 +134,7 @@ const Dashboard = () => {
 
       const fetchTypes = async () => {
         try {
-          const response = await axiosInstance.get("/types");
+          const response = await axiosInstance.get(TYPES_API_ADDRESS);
           setTypes(response.data);
         } catch (err: any) {
           console.error("Failed to fetch types", err);
@@ -137,7 +147,7 @@ const Dashboard = () => {
 
       const fetchCategories = async () => {
         try {
-          const response = await axiosInstance.get("/categories");
+          const response = await axiosInstance.get(CATEGORIES_API_ADDRESS);
           setCategory(response.data);
         } catch (err: any) {
           console.error("Failed to fetch categories", err);
@@ -230,25 +240,83 @@ const Dashboard = () => {
   };
 
   const confirmDelete = (item: DataType) => {
-    setDeletingId(item.id);
-    setDeletingAmount(item.amount);
-    setDeletingTime(new Date(item.time).toLocaleDateString());
-    setDeletingDesc(item.description);
+    setItemToDelete(item)
     setDeleting(true);
   };
 
-  const handleDelete = () => {
-    setDeleting(false);
+  const handleDelete = async (item: DataType | null) => {
+    if (item) {
+      try {
+        await axiosInstance.put(DELETE_DATA_API_ADDRESS(item.id));
+        setData((prevData) => (prevData || []).filter((exp) => exp.id !== item.id));
+        // Show success popup
+        setPopupMessage('Item deleted successfully.');
+        setPopupVisible(true);
+      } catch (error) {
+        console.error('Failed to delete item:', error);
+        // Show error popup
+        setPopupMessage('Failed to delete item.');
+        setPopupVisible(true);
+      } finally {
+        setDeleting(false);
+        setItemToDelete(null);
+      }
+    }
   };
 
-  const editingData = () => {
-    setEditing(false);
+
+  const deleteTag = async (tagId: number) => {
+    try {
+      await axiosInstance.put(DELETE_TAG_API_ADDRESS(tagId));
+      // Update the state to remove the deleted tag from the list
+      setTags((prevTags) => (prevTags || []).filter((tag) => tag.id !== tagId));
+    } catch (error) {
+      console.error('Failed to delete tag:', error);
+    }
   };
-  const editData = (id: number) => {
-    console.log("editing: ", id);
-    setEditingId(id);
+
+  const deleteUserAccount = async () => {
+    try {
+      await axiosInstance.put(DELETE_USER_API_ADDRESS);
+      // Perform logout actions
+      await AsyncStorage.removeItem('token');
+      navigation.navigate('settings');
+    } catch (error) {
+      console.error('Failed to delete account:', error);
+    }
+  };
+
+  const handleEdit = async (item: DataType | null, updatedData: any) => {
+    if (item) {
+      try {
+        // Make API call to update the item
+        await axiosInstance.put(`/expenses/${item.id}/edit`, updatedData);
+        // Update the state to reflect the changes
+        setData((prevData) => {
+          if (!prevData) return prevData;
+          return prevData.map((exp) =>
+            exp.id === item.id ? { ...exp, ...updatedData } : exp
+          );
+        });
+        // Show success message
+        setPopupMessage('Item updated successfully.');
+        setPopupVisible(true);
+      } catch (error) {
+        console.error('Failed to update item:', error);
+        setPopupMessage('Failed to update item.');
+        setPopupVisible(true);
+      } finally {
+        setEditing(false);
+        setItemToEdit(null);
+      }
+    }
+  };
+
+  const editData = (item: DataType) => {
+    setItemToEdit(item);
     setEditing(true);
   };
+
 
   if (loading) {
     return (
@@ -284,17 +352,24 @@ const Dashboard = () => {
       <DeleteData
         deleting={deleting}
         setDeleting={setDeleting}
-        deletingId={deletingId}
-        deletingAmount={deletingAmount}
-        deletingTime={deletingTime}
-        deletingDesc={deletingDesc}
+        itemToDelete={itemToDelete}
         handleDelete={handleDelete}
+        AssignMethod={AssignMethod}
+        AssignType={AssignType}
+        AssignTag={AssignTag}
+        AssignCategory={AssignCategory}
       />
       <EditData
         editing={editing}
         setEditing={setEditing}
-        editingId={editingId}
-        editingData={editingData}
+        itemToEdit={itemToEdit}
+        handleEdit={handleEdit}
+      />
+
+      <CustomPopup
+        visible={popupVisible}
+        message={popupMessage}
+        onClose={() => setPopupVisible(false)}
       />
       <FlatList
         data={sortData(data)}
@@ -312,7 +387,7 @@ const Dashboard = () => {
             deleting={deleting}
             confirmDelete={() => confirmDelete(item)}
             editing={editing}
-            editData={editData}
+            editData={() => editData(item)}
           />
         )}
         initialNumToRender={10}

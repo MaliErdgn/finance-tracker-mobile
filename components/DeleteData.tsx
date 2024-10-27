@@ -1,18 +1,20 @@
 import { Modal, StyleSheet, Text, TouchableOpacity, View, TouchableWithoutFeedback } from 'react-native';
 import React from 'react';
 import { Colors } from '@/constants/Colors';
+import { DataType } from '@/constants/Types';
 
 interface DeleteDataProps {
     deleting: boolean;
     setDeleting: React.Dispatch<React.SetStateAction<boolean>>;
-    deletingId: number | null;
-    deletingAmount: number | null;
-    deletingTime: string | null;
-    deletingDesc: string | null;
-    handleDelete: () => void;
+    itemToDelete: DataType | null;
+    handleDelete: (item: DataType | null) => void;
+    AssignMethod: (id: number) => string;
+    AssignType: (id: number) => string;
+    AssignTag: (id: number) => string;
+    AssignCategory: (tagId: number) => string;
 }
 
-const DeleteData: React.FC<DeleteDataProps> = ({ deleting, setDeleting, deletingId, deletingAmount, deletingTime, deletingDesc, handleDelete }) => {
+const DeleteData: React.FC<DeleteDataProps> = ({ deleting, setDeleting, itemToDelete, handleDelete, AssignCategory, AssignMethod, AssignTag, AssignType }) => {
     return (
         <Modal
             visible={deleting}
@@ -24,19 +26,22 @@ const DeleteData: React.FC<DeleteDataProps> = ({ deleting, setDeleting, deleting
                 <View style={styles.overlay}>
                     <View style={styles.modalContainer}>
                         <Text style={styles.modalText}>Are you sure you want to delete the following item?</Text>
-                        {deletingId !== null && (
+                        {itemToDelete && (
                             <>
-                                <Text style={styles.modalDetailText}>ID: {deletingId}</Text>
-                                <Text style={styles.modalDetailText}>Amount: {deletingAmount}</Text>
-                                <Text style={styles.modalDetailText}>Time: {deletingTime}</Text>
-                                <Text style={styles.modalDetailText}>Description: {deletingDesc}</Text>
+                                <Text style={styles.modalDetailText}>Amount: {itemToDelete.amount}</Text>
+                                <Text style={styles.modalDetailText}>Time: {new Date(itemToDelete.time).toLocaleDateString()}</Text>
+                                <Text style={styles.modalDetailText}>Description: {itemToDelete.description}</Text>
+                                <Text style={styles.modalDetailText}>Tag: {AssignTag(itemToDelete.tag_id)}</Text>
+                                <Text style={styles.modalDetailText}>Category: {AssignCategory(itemToDelete.tag_id)}</Text>
+                                <Text style={styles.modalDetailText}>Method: {AssignMethod(itemToDelete.method_id)}</Text>
+                                <Text style={styles.modalDetailText}>Type: {AssignType(itemToDelete.type_id)}</Text>
                             </>
                         )}
                         <View style={styles.buttonContainer}>
                             <TouchableOpacity style={styles.cancelButton} onPress={() => setDeleting(false)}>
                                 <Text style={styles.cancelButtonText}>Cancel</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete()}>
+                            <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(itemToDelete)}>
                                 <Text style={styles.deleteButtonText}>Delete</Text>
                             </TouchableOpacity>
                         </View>

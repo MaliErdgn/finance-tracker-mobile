@@ -20,7 +20,7 @@ import {
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { ADD_DATA_API_ADDRESS } from "@/constants/Variables";
-import axios from "axios";
+import axiosInstance from "@/api/axiosInstance";
 import moment from 'moment'
 import { useNavigation } from "@react-navigation/native";
 
@@ -77,7 +77,8 @@ const addData = () => {
 
   const addExpense = async (formattedDate: string, description: string | null) => {
     try {
-      const response = await axios.post(ADD_DATA_API_ADDRESS, {
+
+      const response = await axiosInstance.post(ADD_DATA_API_ADDRESS, {
         amount: amount,
         time: formattedDate,
         description: description,

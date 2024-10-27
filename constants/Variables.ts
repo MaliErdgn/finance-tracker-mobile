@@ -49,17 +49,23 @@ export const TABS_CONFIGURATION = [
 ];
 
 //#region API ENDPOINTS
-export const DATA_API_ADDRESS = "http://51.20.113.113:4000/finance-tracker/api/expenses"
+export const DATA_API_ADDRESS = "/expenses"
 
-export const TAGS_API_ADDRESS = "http://51.20.113.113:4000/finance-tracker/api/tags"
+export const TAGS_API_ADDRESS = "/tags"
 
-export const TYPES_API_ADDRESS = "http://51.20.113.113:4000/finance-tracker/api/types"
+export const TYPES_API_ADDRESS = "/types"
 
-export const METHOD_API_ADDRESS = "http://51.20.113.113:4000/finance-tracker/api/methods"
+export const METHOD_API_ADDRESS = "/methods"
 
-export const CATEGORIES_API_ADDRESS = "http://51.20.113.113:4000/finance-tracker/api/categories"
+export const CATEGORIES_API_ADDRESS = "/categories"
 
-export const ADD_DATA_API_ADDRESS = "http://51.20.113.113:4000/finance-tracker/api/add-expense"
+export const ADD_DATA_API_ADDRESS = "/add-expense"
+
+export const DELETE_DATA_API_ADDRESS = (itemId: number) => `/expenses/${itemId}/delete`;
+
+export const DELETE_TAG_API_ADDRESS = (tagId: number) => `/tags/${tagId}/delete`;
+
+export const DELETE_USER_API_ADDRESS = "/users/delete"
 
 export const BASE_URL = "http://51.20.113.113:4000/finance-tracker/api"
 //#endregion
