@@ -1,5 +1,5 @@
 export const TABS_CONFIGURATION = [
-        {
+    {
         name: "dashboard",
         options: {
             title: "Dashboard",
@@ -14,17 +14,16 @@ export const TABS_CONFIGURATION = [
             title: "Add Data",
             focused: "plus-box",
             unfocused: "plus-box-outline",
-            size: 24
+            size: 24,
         },
     },
-
     {
         name: "insights",
         options: {
             title: "Insights",
             focused: "chart-timeline-variant",
             unfocused: "chart-timeline-variant",
-            size: 24
+            size: 24,
         },
     },
     {
@@ -33,7 +32,7 @@ export const TABS_CONFIGURATION = [
             title: "Tags",
             focused: "tag",
             unfocused: "tag-outline",
-            size: 24
+            size: 24,
         },
     },
     {
@@ -42,11 +41,11 @@ export const TABS_CONFIGURATION = [
             title: "Settings",
             focused: "dots-horizontal",
             unfocused: "dots-horizontal",
-            size: 24
+            size: 24,
         },
     },
-
 ];
+
 
 //#region API ENDPOINTS
 export const DATA_API_ADDRESS = "/expenses"

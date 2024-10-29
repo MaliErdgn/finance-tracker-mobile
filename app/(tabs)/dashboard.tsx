@@ -7,15 +7,10 @@ import {
   Platform,
   UIManager,
   FlatList,
-  View,
-  Button,
-  Modal,
-  TouchableOpacity,
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import axiosInstance from "../../api/axiosInstance";
-import { AxiosError } from "axios";
 import React from "react";
 import { Text } from "@rneui/base";
 import { Colors } from "@/constants/Colors";
@@ -31,13 +26,14 @@ import {
   TypeDataContext,
 } from "@/constants/Context";
 import { useFocusEffect } from "expo-router";
-import PopupDialog from "react-native-popup-dialog";
 import DeleteData from "@/components/DeleteData";
 import EditData from "@/components/EditData";
 import AsyncStorage from "@react-native-async-storage/async-storage"
-import { NavigationProp, useNavigation } from "@react-navigation/native";
+// import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { useRouter } from "expo-router";
 import { CATEGORIES_API_ADDRESS, DATA_API_ADDRESS, DELETE_DATA_API_ADDRESS, DELETE_TAG_API_ADDRESS, DELETE_USER_API_ADDRESS, METHOD_API_ADDRESS, TAGS_API_ADDRESS, TYPES_API_ADDRESS } from "@/constants/Variables";
 import CustomPopup from '@/components/CustomPopup';
+import { AuthContext } from "@/context/AuthContext";
 
 
 
@@ -48,10 +44,11 @@ if (
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-type DashboardScreenNavigationProp = NavigationProp<RootStackParamList, 'dashboard'>;
 
 const Dashboard = () => {
-  const navigation = useNavigation<DashboardScreenNavigationProp>();
+  const router = useRouter()
+  const { isAuthenticated, setIsAuthenticated } = useContext(AuthContext)
+
   const { data, setData } = useContext(ExpenseDataContext);
   const { tags, setTags } = useContext(TagDataContext);
   const { methods, setMethods } = useContext(MethodDataContext);
@@ -77,14 +74,10 @@ const Dashboard = () => {
 
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const token = await AsyncStorage.getItem("token");
-      if (!token) {
-        navigation.navigate("settings");
-      }
-    };
-    checkAuth();
-  }, []);
+    if (!isAuthenticated) {
+      router.replace("/auth/login");
+    }
+  }, [isAuthenticated]);
 
 
   useFocusEffect(
@@ -100,7 +93,7 @@ const Dashboard = () => {
           setError("Failed to fetch expenses");
           if (err.response && (err.response.status === 401 || err.response.status === 403)) {
             await AsyncStorage.removeItem("token");
-            navigation.navigate("settings");
+            setIsAuthenticated(false)
           }
         } finally {
           setLoading(false);
@@ -115,7 +108,7 @@ const Dashboard = () => {
           console.error("Failed to fetch tags", err);
           if (err.response && (err.response.status === 401 || err.response.status === 403)) {
             await AsyncStorage.removeItem("token");
-            navigation.navigate("settings");
+            setIsAuthenticated(false)
           }
         }
       };
@@ -127,7 +120,7 @@ const Dashboard = () => {
           console.error("Failed to fetch methods", err);
           if (err.response && (err.response.status === 401 || err.response.status === 403)) {
             await AsyncStorage.removeItem("token");
-            navigation.navigate("settings");
+            setIsAuthenticated(false)
           }
         }
       };
@@ -140,7 +133,7 @@ const Dashboard = () => {
           console.error("Failed to fetch types", err);
           if (err.response && (err.response.status === 401 || err.response.status === 403)) {
             await AsyncStorage.removeItem("token");
-            navigation.navigate("settings");
+            setIsAuthenticated(false)
           }
         }
       };
@@ -153,7 +146,7 @@ const Dashboard = () => {
           console.error("Failed to fetch categories", err);
           if (err.response && (err.response.status === 401 || err.response.status === 403)) {
             await AsyncStorage.removeItem("token");
-            navigation.navigate("settings");
+            setIsAuthenticated(false)
           }
         }
       };
@@ -280,7 +273,7 @@ const Dashboard = () => {
       await axiosInstance.put(DELETE_USER_API_ADDRESS);
       // Perform logout actions
       await AsyncStorage.removeItem('token');
-      navigation.navigate('settings');
+      router.replace("/auth/login")
     } catch (error) {
       console.error('Failed to delete account:', error);
     }

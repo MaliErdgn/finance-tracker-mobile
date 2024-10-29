@@ -1,5 +1,7 @@
-import { Tabs } from "expo-router";
+// src/app/(tabs)/_layout.tsx
+
 import React from "react";
+import { Tabs } from "expo-router";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
@@ -15,23 +17,27 @@ export default function TabLayout() {
         headerShown: false,
         tabBarItemStyle: { margin: 3 },
         tabBarStyle: {
-          backgroundColor: Colors[colorScheme ?? "light"].background, 
-        }
+          backgroundColor: Colors[colorScheme ?? "light"].background,
+        },
       }}
     >
-      {TABS_CONFIGURATION.map((tab, index) => (
+      {TABS_CONFIGURATION.map((tab) => (
         <Tabs.Screen
-          key={index}
+          key={tab.name}
           name={tab.name}
           options={{
             title: tab.options.title,
-            tabBarIcon: ({color, focused}) => (
+            tabBarIcon: ({ color, focused }) => (
               <MaterialCommunityIcons
-                name={focused ? tab.options.focused as keyof typeof MaterialCommunityIcons.glyphMap : tab.options.unfocused as keyof typeof MaterialCommunityIcons.glyphMap}
+                name={
+                  focused
+                    ? (tab.options.focused as keyof typeof MaterialCommunityIcons.glyphMap)
+                    : (tab.options.unfocused as keyof typeof MaterialCommunityIcons.glyphMap)
+                }
                 size={tab.options.size}
                 color={color}
               />
-            )
+            ),
           }}
         />
       ))}

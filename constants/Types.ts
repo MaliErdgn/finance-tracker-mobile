@@ -32,9 +32,18 @@ export type Category = {
 
 
 export type RootStackParamList = {
-  dashboard: undefined;
-  'add-data': undefined;
-  insights: undefined;
-  tags: undefined;
-  settings: undefined;
+    dashboard: undefined;
+    'add-data': undefined;
+    insights: undefined;
+    tags: undefined;
+    settings: undefined;
+    userInfo: undefined;
+    languages: undefined;
+    accessibility: undefined;
+    manageInformation: undefined;
+    notifications: undefined;
+    contact: undefined;
+    helpSupport: undefined;
+    aboutMe: undefined;
+    checkoutApps: undefined;
 };

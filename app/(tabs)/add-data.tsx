@@ -65,13 +65,6 @@ const addData = () => {
 
   const handleDataSubmit = () => {
     const formattedDate = moment(selectedDate, "DD/MM/YYYY").format("YYYY-MM-DD")
-    console.log("Amount: ", amount)
-    console.log("Selected Category: ", selectedCategory)
-    console.log("Selected Tag: ", selectedTag)
-    console.log("Selected Date: ", selectedDate)
-    console.log("Selected Method: ", selectedMethod)
-    console.log("Selected Type: ", selectedType)
-    console.log("Description: ", description)
     addExpense(formattedDate, description || null);
   }
 
@@ -98,9 +91,7 @@ const addData = () => {
   const onCategoryChange = (value: number | null) => {
     setSelectedCategory(value);
     const matchingTags = tags?.filter((tag) => tag.category_id === value)
-    console.log("Selected Tag exists")
     if (matchingTags?.some((tag) => tag.id === selectedTag)) {
-      console.log("selected tag  exists under this category")
       console.log("matchingTags[0].id: ", matchingTags[0].id)
     } else {
       console.log("selected tag does not exist under this category")
