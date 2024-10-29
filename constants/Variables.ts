@@ -62,7 +62,9 @@ export const ADD_DATA_API_ADDRESS = "/add-expense"
 
 export const DELETE_DATA_API_ADDRESS = (itemId: number) => `/expenses/${itemId}/delete`;
 
+export const CREATE_TAG_API_ADDRESS = '/tags/create';
 export const DELETE_TAG_API_ADDRESS = (tagId: number) => `/tags/${tagId}/delete`;
+export const EDIT_TAG_API_ADDRESS = (id: number) => `/tags/${id}/edit`;
 
 export const DELETE_USER_API_ADDRESS = "/users/delete"
 

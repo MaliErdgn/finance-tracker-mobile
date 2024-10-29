@@ -30,6 +30,7 @@ export const Colors = {
   },
   dark: {
     text: '#eee',
+    textSecondary: '#888',
     background: backgroundDark,
     surfaceItems: surfaceItems,
     primary: primaryDark,

@@ -1,35 +1,35 @@
 - ~~sorting~~
 - ~~dashboardda income veya expense olduğuna göre sol borderin renk alması~~
-- dashbaordda data edit özelliği
-  - frontend
-  - backend
-- dashboardda data silme
-  - frontend
-  - backend
+- ~~dashbaordda data edit özelliği~~
+  - ~~frontend~~
+  - ~~backend~~
+- ~~dashboardda data silme~~
+  - ~~frontend~~
+  - ~~backend~~
 - tags page
   - edit tags
     -edit-tags api
   - add tags
     - add-tags api
 - insights page
-- settings page
+- ~~settings page
   -- login / register api + change password
   -account
-    -user info / personal info
-    -Language
-    -Accessibility
+  -user info / personal info
+  -Language
+  -Accessibility
   -Privacy and security
-    -Manage information
-    -password
-    -notifications (on/off)
-    -notification preferences
+  -Manage information
+  -password
+  -notifications (on/off)
+  -notification preferences
   -Permissions?
   -About
-    -Contact
-    -Help & support
-    -About me
+  -Contact
+  -Help & support
+  -About me
   -Logout
-  -Checkout my other apps
+  -Checkout my other apps~~
 - user ekleme
 - client -> parameter validation -> whitelist/blacklist -> authorization/authn -> rate limit -> dynamic routing -> service discovery -> protocol conversion
-- Hybrid data deletion for deleted data
+- ~~Hybrid data deletion for deleted data~~
