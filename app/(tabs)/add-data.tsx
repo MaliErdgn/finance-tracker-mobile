@@ -149,7 +149,7 @@ const addData = () => {
                 containerStyle={{ paddingHorizontal: 0 }}
                 inputContainerStyle={{
                   paddingHorizontal: 0,
-                  borderColor: Colors.dark.primary,
+                  borderColor: Colors.dark.accent,
                 }}
               ></Input>
               {/* Time */}
@@ -187,7 +187,7 @@ const addData = () => {
                 <Text style={styles.fieldLabel}>Category</Text>
                 <Picker
                   mode="dropdown"
-                  dropdownIconColor={Colors.dark.primary}
+                  dropdownIconColor={Colors.dark.text}
                   style={styles.picker}
                   selectedValue={selectedCategory}
                   onValueChange={value => onCategoryChange(value)}
@@ -207,7 +207,7 @@ const addData = () => {
                 <Text style={styles.fieldLabel}>Tag</Text>
                 <Picker
                   mode="dropdown"
-                  dropdownIconColor={Colors.dark.primary}
+                  dropdownIconColor={Colors.dark.text}
                   style={styles.picker}
                   selectedValue={selectedTag}
                   onValueChange={(value) => setSelectedTag(value)}
@@ -228,7 +228,7 @@ const addData = () => {
                   <Text style={styles.fieldLabel}>Method</Text>
                   <Picker
                     mode="dropdown"
-                    dropdownIconColor={Colors.dark.primary}
+                    dropdownIconColor={Colors.dark.text}
                     style={styles.picker}
                     selectedValue={selectedMethod}
                     onValueChange={(value) => setSelectedMethod(value)}
@@ -250,7 +250,7 @@ const addData = () => {
                   <Text style={styles.fieldLabel}>Type</Text>
                   <Picker
                     mode="dropdown"
-                    dropdownIconColor={Colors.dark.primary}
+                    dropdownIconColor={Colors.dark.text}
                     style={styles.picker}
                     selectedValue={selectedType}
                     onValueChange={(value) => setSelectedType(value)}
@@ -286,7 +286,7 @@ const addData = () => {
                 containerStyle={{ paddingHorizontal: 0 }}
                 inputContainerStyle={{
                   paddingHorizontal: 0,
-                  borderColor: Colors.dark.primary,
+                  borderColor: Colors.dark.accent,
                 }}
               ></Input>
               {/* Submit */}

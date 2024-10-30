@@ -75,7 +75,7 @@ const DataRow: React.FC<DataRowProps> = memo(
                     <MaterialCommunityIcons
                         name={isExpanded ? "chevron-up" : "chevron-down"}
                         size={24}
-                        color={Colors.dark.primary}
+                        color={Colors.dark.text}
                     />
                 </ListItem>
 
@@ -113,7 +113,7 @@ const DataRow: React.FC<DataRowProps> = memo(
                                     <MaterialCommunityIcons
                                         name="pencil"
                                         size={24}
-                                        color={Colors.dark.primary}
+                                        color={Colors.dark.accent}
                                         style={{ alignSelf: "flex-end", marginRight: 15 }}
                                     />
                                 </TouchableOpacity>
@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
     listItemContainerExpanded: {
         borderBottomRightRadius: 0,
         borderBottomLeftRadius: 0,
-        // borderColor: Colors.dark.primary,
+        // borderColor: Colors.dark.accent,
         borderBottomWidth: 1,
     },
     cellText: {
@@ -187,6 +187,6 @@ const styles = StyleSheet.create({
     },
     Income: {
         borderLeftWidth: 4,
-        borderColor: Colors.dark.secondary
+        borderColor: Colors.dark.income
     },
 })

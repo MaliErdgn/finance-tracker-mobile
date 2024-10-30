@@ -47,7 +47,7 @@ const HeaderArea = ({
                 </ListItem.Content>
                 <TouchableOpacity onPress={() => changeSortOrder()}>
                     <ListItem.Content>
-                        <MaterialCommunityIcons name={sortOrder === "asc" ? "sort-ascending" : "sort-descending"} size={20} color={Colors.dark.primary}></MaterialCommunityIcons>
+                        <MaterialCommunityIcons name={sortOrder === "asc" ? "sort-ascending" : "sort-descending"} size={20} color={Colors.dark.text}></MaterialCommunityIcons>
                     </ListItem.Content>
                 </TouchableOpacity>
             </ListItem>

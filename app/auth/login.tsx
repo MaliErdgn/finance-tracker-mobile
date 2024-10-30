@@ -80,7 +80,7 @@ const Login = () => {
                     containerStyle={{ paddingHorizontal: 0 }}
                     inputContainerStyle={{
                         paddingHorizontal: 0,
-                        borderColor: Colors.dark.primary,
+                        borderColor: Colors.dark.accent,
                     }}
                 />
                 <Input
@@ -102,7 +102,7 @@ const Login = () => {
                     containerStyle={{ paddingHorizontal: 0 }}
                     inputContainerStyle={{
                         paddingHorizontal: 0,
-                        borderColor: Colors.dark.primary,
+                        borderColor: Colors.dark.accent,
                     }}
                 />
                 <TouchableOpacity
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
     submitButton: {
         backgroundColor: Colors.dark.surfaceItems,
         borderWidth: 1,
-        borderColor: Colors.dark.primary,
+        borderColor: Colors.dark.accent,
         borderRadius: 8,
         paddingVertical: 12,
         paddingHorizontal: 10,

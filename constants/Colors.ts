@@ -1,47 +1,25 @@
-/**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
- */
+// src/constants/Colors.ts
 
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
-const primaryLight = '#ff0000'
-
-
-
-const primaryDark = '#bb86fc'
-const secondaryDark = '#03dac6'
-const tertiaryDark = '#cf6679'
-const backgroundDark = '#121212'
-const surfaceItems = '#1e1e1e'
-
-
+const backgroundDark = '#121212'; // Dominant color
+const surfaceDark = '#1E1E1E'; // Secondary color
+const accentDark = '#BB86FC'; // Accent color
+const textDark = '#EEEEEE'; // Light gray for text
+const textSecondaryDark = '#888888'; // Gray for secondary text
+const incomeDark = "#03dac6";
 
 export const Colors = {
-  light: {
-    text: '#11181C',
-    background: '#fff',
-    tint: tintColorLight,
-    tertiary: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
-    tabIconSelected: tintColorLight,
-    primary: primaryLight,
-  },
   dark: {
-    text: '#eee',
-    textSecondary: '#888',
-    background: backgroundDark,
-    surfaceItems: surfaceItems,
-    primary: primaryDark,
-    secondary: secondaryDark,
-    tertiary: tertiaryDark,
-    // 
-    // 
-    errors: tertiaryDark,
-    tint: tintColorDark,
-    icon: secondaryDark,
-    tabIconDefault: secondaryDark,
-    tabIconSelected: tintColorDark,
+    text: textDark,
+    textSecondary: textSecondaryDark,
+    background: backgroundDark, // Dominant color
+    surfaceItems: surfaceDark, // Secondary color
+    accent: accentDark, // Accent color
+    primary: surfaceDark, // Use secondary color for primary to avoid overuse of accent color
+    errors: '#CF6679', // Error color
+    tint: '#FFFFFF', // Tint color
+    icon: '#FFFFFF', // White icons for visibility
+    tabIconDefault: '#888888',
+    tabIconSelected: '#FFFFFF',
+    income: incomeDark,
   },
 };
