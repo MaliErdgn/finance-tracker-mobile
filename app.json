@@ -13,7 +13,12 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        }
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -21,7 +26,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.malierdgn.financeTracker",
-      "useCleartextTraffic": true
+      "usesCleartextTraffic": true
     },
     "web": {
       "bundler": "metro",
