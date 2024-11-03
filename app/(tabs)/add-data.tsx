@@ -135,14 +135,14 @@ const addData = () => {
                 label={"Enter The Amount"}
                 keyboardType="numeric"
                 inputMode="numeric"
-                value={amount ? amount.toString() : ""}
+                value={amount !== undefined ? amount.toString() : ""}
                 onChangeText={(value) => {
-                  // Use parseFloat to handle floating-point numbers correctly
-                  const parsedValue = parseFloat(value);
-                  if (!isNaN(parsedValue)) {
-                    setAmount(parsedValue);
-                  } else {
-                    setAmount(undefined); // Reset if input is invalid
+                  // Replace ',' with '.' to support both decimal separators
+                  const sanitizedValue = value.replace(",", ".");
+
+                  // Allow empty or valid decimal input
+                  if (/^\d*\.?\d*$/.test(sanitizedValue)) {
+                    setAmount(sanitizedValue ? parseFloat(sanitizedValue) : undefined);
                   }
                 }}
                 placeholderTextColor={Colors.dark.text}
@@ -160,6 +160,7 @@ const addData = () => {
                   borderColor: Colors.dark.accent,
                 }}
               ></Input>
+
               {/* Time */}
 
               <View style={styles.fieldContainer}>
