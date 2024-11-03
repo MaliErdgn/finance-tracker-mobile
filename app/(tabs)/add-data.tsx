@@ -136,7 +136,15 @@ const addData = () => {
                 keyboardType="numeric"
                 inputMode="numeric"
                 value={amount ? amount.toString() : ""}
-                onChangeText={value => setAmount(Number(value))}
+                onChangeText={(value) => {
+                  // Use parseFloat to handle floating-point numbers correctly
+                  const parsedValue = parseFloat(value);
+                  if (!isNaN(parsedValue)) {
+                    setAmount(parsedValue);
+                  } else {
+                    setAmount(undefined); // Reset if input is invalid
+                  }
+                }}
                 placeholderTextColor={Colors.dark.text}
                 inputStyle={styles.amountInput}
                 leftIcon={

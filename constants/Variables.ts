@@ -68,5 +68,5 @@ export const EDIT_TAG_API_ADDRESS = (id: number) => `/tags/${id}/edit`;
 
 export const DELETE_USER_API_ADDRESS = "/users/delete"
 
-export const BASE_URL = "http://51.20.113.113:4000/finance-tracker/api"
+export const BASE_URL = "https://api.stackia.org/finance-tracker/api"
 //#endregion
