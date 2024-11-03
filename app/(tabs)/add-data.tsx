@@ -31,7 +31,7 @@ const addData = () => {
   const { types } = useContext(TypeDataContext);
   const { category } = useContext(CategoryDataContext);
 
-  const [amount, setAmount] = useState<number>()
+  const [amount, setAmount] = useState<string>()
   const [selectedTag, setSelectedTag] = useState<number | null>(tags?.find((tag) => tag.tag_name === "Personal")?.id ?? null)
   const [selectedMethod, setSelectedMethod] = useState<number | null>(methods?.find((m) => m.method_name === "Credit Card")?.id ?? null)
   const [selectedType, setSelectedType] = useState<number | null>(types?.find((t) => t.type_name === "Expense")?.id ?? null)
@@ -135,14 +135,23 @@ const addData = () => {
                 label={"Enter The Amount"}
                 keyboardType="numeric"
                 inputMode="numeric"
-                value={amount !== undefined ? amount.toString() : ""}
+                value={amount}
                 onChangeText={(value) => {
                   // Replace ',' with '.' to support both decimal separators
                   const sanitizedValue = value.replace(",", ".");
 
-                  // Allow empty or valid decimal input
-                  if (/^\d*\.?\d*$/.test(sanitizedValue)) {
-                    setAmount(sanitizedValue ? parseFloat(sanitizedValue) : undefined);
+                  // Allow only valid input: digits and a single decimal point
+                  if (/^\d*\.?\d*$/.test(sanitizedValue) || sanitizedValue === "") {
+                    setAmount(sanitizedValue);
+                  }
+                }}
+                onBlur={() => {
+                  // Convert the string to a float when the user finishes editing
+                  if (amount) {
+                    const parsedAmount = parseFloat(amount);
+                    if (!isNaN(parsedAmount)) {
+                      setAmount(parsedAmount.toString());
+                    }
                   }
                 }}
                 placeholderTextColor={Colors.dark.text}
