@@ -1,3 +1,4 @@
+// src/screens/auth/Register.tsx
 import React, { useState } from 'react';
 import {
     StyleSheet,
@@ -8,7 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '@/constants/Colors';
 import { Input, Text } from '@rneui/base';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import axiosInstance from '../../api/axiosInstance';
+import axiosInstance from '@/api/axiosInstance';
 import { useRouter } from 'expo-router';
 import { usePopup } from '@/context/PopupContext'; // Use the custom hook
 
@@ -24,7 +25,7 @@ const Register = () => {
             showPopup('Please enter both username and password.');
             return;
         }
-
+    
         setLoading(true); // Show loading indicator
         try {
             // Attempt to register
@@ -32,15 +33,21 @@ const Register = () => {
                 username,
                 password,
             });
-
+    
             showPopup('Account created successfully. Please log in.');
-
-            // Navigate to the Login page after successful registration
-            router.replace('/auth/login');
+            router.replace('/auth/login'); // Navigate to the Login page
         } catch (error: any) {
             console.error('Error in handleRegister:', error);
+    
+            // Handle validation errors
             if (error.response && error.response.status === 400) {
-                showPopup('Username already exists.');
+                const { errors } = error.response.data;
+                if (Array.isArray(errors)) {
+                    // If there are validation errors, display each one
+                    errors.forEach((err) => showPopup(err.msg));
+                } else {
+                    showPopup('Username already exists.');
+                }
             } else {
                 showPopup('An error occurred during registration. Please try again.');
             }
@@ -48,7 +55,6 @@ const Register = () => {
             setLoading(false); // Hide loading indicator
         }
     };
-
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.headerTextStyle}>
@@ -109,7 +115,7 @@ const Register = () => {
                     </Text>
                 </TouchableOpacity>
 
-                {/* Navigate to Login */}
+                {/* Navigate to Login */}  
                 <TouchableOpacity onPress={() => router.replace('/auth/login')}>
                     <Text style={styles.linkText}>Already have an account? Log in</Text>
                 </TouchableOpacity>

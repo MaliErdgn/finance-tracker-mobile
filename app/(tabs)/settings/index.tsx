@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+// src/screens/settings/SettingsMain.tsx
+import React, { useState, useContext } from 'react';
 import {
     StyleSheet,
     View,
@@ -9,40 +10,30 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '@/constants/Colors';
 import { Text } from '@rneui/base';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Href, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import MenuItem from '@/components/MenuItem';
 import ConfirmationModal from '@/components/ConfirmationModal';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AuthContext } from "@/context/AuthContext"; // Import AuthContext
 import { usePopup } from '@/context/PopupContext'; // Use the custom hook
 import axiosInstance from '@/api/axiosInstance';
 import { DELETE_USER_API_ADDRESS } from '@/constants/Variables';
 
 const SettingsMain = () => {
     const router = useRouter();
-    const [isLogoutModalVisible, setLogoutModalVisible] = useState<boolean>(false);
-    const [isDeleteAccountModalVisible, setDeleteAccountModalVisible] = useState<boolean>(false);
-    const { showPopup } = usePopup(); // Use the custom hook to access showPopup
-
-    // Handler to navigate to different screens
-    const navigateTo = (screen: string) => {
-        router.push(`/settings/${screen}` as Href);
-    };
+    const [isLogoutModalVisible, setLogoutModalVisible] = useState(false);
+    const [isDeleteAccountModalVisible, setDeleteAccountModalVisible] = useState(false);
+    const { logout } = useContext(AuthContext); // Access logout function
+    const { showPopup } = usePopup(); // Use the custom hook
 
     // Logout handlers
     const handleLogoutPress = () => {
         setLogoutModalVisible(true);
     };
 
-    const handleLogoutConfirm = async () => {
+    const handleLogoutConfirm = () => {
         setLogoutModalVisible(false);
-        try {
-            await AsyncStorage.removeItem('token');
-            showPopup('You have been logged out.');
-            router.replace('/auth/login');
-        } catch (error) {
-            console.error('Error logging out:', error);
-            showPopup('An error occurred during logout.');
-        }
+        logout(); // Call logout from AuthContext
+        showPopup('You have been logged out.');
     };
 
     const handleLogoutCancel = () => {
@@ -57,18 +48,15 @@ const SettingsMain = () => {
     const handleDeleteAccountConfirm = async () => {
         setDeleteAccountModalVisible(false);
         try {
-            // Call your API to delete the account here
-            // Ensure you reach your endpoint
+            // API call to delete the account
             const response = await axiosInstance.put(DELETE_USER_API_ADDRESS);
-
             if (response.status === 200) {
-                await AsyncStorage.removeItem('token'); // Clear the token
-                showPopup('Your account has been deleted.'); // Show success message
-                router.replace('/auth/login'); // Navigate to login page
+                logout(); // Call logout from AuthContext
+                showPopup('Your account has been deleted.');
             }
         } catch (error) {
             console.error('Error deleting account:', error);
-            showPopup('An error occurred while deleting the account.'); // Show error message
+            showPopup('An error occurred while deleting the account.');
         }
     };
 
@@ -85,17 +73,17 @@ const SettingsMain = () => {
                     <MenuItem
                         iconName="account"
                         title="User Info / Personal Info"
-                        onPress={() => navigateTo('userInfo')}
+                        onPress={() => router.push('/settings/userInfo')}
                     />
                     <MenuItem
                         iconName="translate"
                         title="Languages"
-                        onPress={() => navigateTo('languages')}
+                        onPress={() => router.push('/settings/languages')}
                     />
                     <MenuItem
                         iconName="access-point"
                         title="Accessibility"
-                        onPress={() => navigateTo('accessibility')}
+                        onPress={() => router.push('/settings/accessibility')}
                     />
                 </View>
 
@@ -105,12 +93,12 @@ const SettingsMain = () => {
                     <MenuItem
                         iconName="shield-lock"
                         title="Manage Information"
-                        onPress={() => navigateTo('manageInformation')}
+                        onPress={() => router.push('/settings/manageInformation')}
                     />
                     <MenuItem
                         iconName="bell"
-                        title="NotificationsScreen"
-                        onPress={() => navigateTo('notificationsscreen')}
+                        title="Notifications"
+                        onPress={() => router.push('/settings/notificationsscreen')}
                     />
                 </View>
 
@@ -120,27 +108,17 @@ const SettingsMain = () => {
                     <MenuItem
                         iconName="email"
                         title="Contact"
-                        onPress={() => navigateTo('contact')}
+                        onPress={() => router.push('/settings/contact')}
                     />
                     <MenuItem
                         iconName="help-circle"
                         title="Help & Support"
-                        onPress={() => navigateTo('helpSupport')}
+                        onPress={() => router.push('/settings/helpSupport')}
                     />
                     <MenuItem
                         iconName="information"
                         title="About Me"
-                        onPress={() => navigateTo('aboutMe')}
-                    />
-                </View>
-
-                {/* Checkout Other Apps */}
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Others</Text>
-                    <MenuItem
-                        iconName="apps"
-                        title="Checkout My Other Apps"
-                        onPress={() => navigateTo('checkoutApps')}
+                        onPress={() => router.push('/settings/aboutMe')}
                     />
                 </View>
 
@@ -155,23 +133,23 @@ const SettingsMain = () => {
                     <MaterialCommunityIcons name="delete" size={24} color="#fff" />
                     <Text style={styles.deleteButtonText}>Delete Account</Text>
                 </TouchableOpacity>
+
+                {/* Logout Confirmation Modal */}
+                <ConfirmationModal
+                    visible={isLogoutModalVisible}
+                    message="Are you sure you want to logout?"
+                    onConfirm={handleLogoutConfirm}
+                    onCancel={handleLogoutCancel}
+                />
+
+                {/* Delete Account Confirmation Modal */}
+                <ConfirmationModal
+                    visible={isDeleteAccountModalVisible}
+                    message="Are you sure you want to delete your account? This action cannot be undone."
+                    onConfirm={handleDeleteAccountConfirm}
+                    onCancel={handleDeleteAccountCancel}
+                />
             </ScrollView>
-
-            {/* Logout Confirmation Modal */}
-            <ConfirmationModal
-                visible={isLogoutModalVisible}
-                message="Are you sure you want to logout?"
-                onConfirm={handleLogoutConfirm}
-                onCancel={handleLogoutCancel}
-            />
-
-            {/* Delete Account Confirmation Modal */}
-            <ConfirmationModal
-                visible={isDeleteAccountModalVisible}
-                message="Are you sure you want to delete your account? This action cannot be undone."
-                onConfirm={handleDeleteAccountConfirm}
-                onCancel={handleDeleteAccountCancel}
-            />
         </SafeAreaView>
     );
 };
@@ -205,7 +183,7 @@ const styles = StyleSheet.create({
         marginTop: 20,
     },
     logoutButtonText: {
-        color: '#fff',
+        color: Colors.dark.text,
         fontSize: 16,
         marginLeft: 10,
         fontWeight: 'bold',
@@ -220,7 +198,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
     },
     deleteButtonText: {
-        color: '#fff',
+        color: Colors.dark.text,
         fontSize: 16,
         marginLeft: 10,
         fontWeight: 'bold',

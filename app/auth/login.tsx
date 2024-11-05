@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useState, useContext } from 'react';
 import {
     StyleSheet,
     View,
@@ -8,18 +8,18 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '@/constants/Colors';
 import { Input, Text } from '@rneui/base';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import axiosInstance from '../../api/axiosInstance';
-import { Href, useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AuthContext } from "@/context/AuthContext";
+import axiosInstance from '@/api/axiosInstance';
+import { useRouter } from 'expo-router';
+import { AuthContext } from "@/context/AuthContext"; // Import AuthContext
 import { usePopup } from '@/context/PopupContext'; // Use the custom hook
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Correctly import AsyncStorage
 
 const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const router = useRouter();
     const [loading, setLoading] = useState(false);
-    const { setIsAuthenticated } = useContext(AuthContext);
+    const router = useRouter();
+    const { login, setIsAuthenticated } = useContext(AuthContext); // Access both login and setIsAuthenticated
     const { showPopup } = usePopup(); // Use the custom hook to access showPopup
 
     const handleLogin = async () => {
@@ -28,7 +28,7 @@ const Login = () => {
             return;
         }
 
-        setLoading(true); // Show loading indicator
+        setLoading(true);
         try {
             // Attempt to log in
             const response = await axiosInstance.post('/login', {
@@ -36,18 +36,20 @@ const Login = () => {
                 password,
             });
 
-            const { token } = response.data;
+            console.log("Login response:", response.data); // Log to confirm token presence
 
-            // Store the token securely
-            await AsyncStorage.setItem('token', token);
-            setIsAuthenticated(true);
-
-            // Show a success popup message
-            showPopup('You are now logged in.');
-
-            // Navigate to the Dashboard immediately
-            router.replace('/dashboard');
-        } catch (error: any) {
+            const { accessToken } = response.data;
+            if (accessToken) {
+                // Only store the token if it exists and is valid
+                await AsyncStorage.setItem('token', accessToken);
+                setIsAuthenticated(true);
+                showPopup('You are now logged in.');
+                router.replace('/(tabs)/dashboard'); // Navigate to Dashboard after login
+            } else {
+                showPopup('Login failed. No token received.');
+                console.error("No access token received in response:", response.data);
+            }
+        } catch (error: any) { // Explicitly cast error to any
             console.error('Error in handleLogin:', error);
             if (error.response && error.response.status === 401) {
                 showPopup('Invalid credentials. Please try again.');
@@ -118,10 +120,9 @@ const Login = () => {
                         {loading ? 'Logging in...' : 'Login'}
                     </Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => router.replace('/auth/register' as Href)}>
+                <TouchableOpacity onPress={() => router.replace('/auth/register')}>
                     <Text style={styles.linkText}>Don't have an account? Create one</Text>
                 </TouchableOpacity>
-
             </View>
         </SafeAreaView>
     );
