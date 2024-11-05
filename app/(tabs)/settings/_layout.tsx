@@ -21,7 +21,7 @@ const SettingsLayout = () => {
             <Stack.Screen name="languages" options={{ title: 'Languages' }} />
             <Stack.Screen name="accessibility" options={{ title: 'Accessibility' }} />
             <Stack.Screen name="manageInformation" options={{ title: 'Manage Information' }} />
-            <Stack.Screen name="notifications" options={{ title: 'Notifications' }} />
+            <Stack.Screen name="notificationsscreen" options={{ title: 'NotificationsScreen' }} />
             <Stack.Screen name="contact" options={{ title: 'Contact' }} />
             <Stack.Screen name="helpSupport" options={{ title: 'Help & Support' }} />
             <Stack.Screen name="aboutMe" options={{ title: 'About Me' }} />

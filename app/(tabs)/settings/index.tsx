@@ -1,29 +1,31 @@
-// src/app/settings/index.tsx
-
 import React, { useState } from 'react';
 import {
     StyleSheet,
     View,
     TouchableOpacity,
     ScrollView,
-    Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '@/constants/Colors';
 import { Text } from '@rneui/base';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { Href, useRouter } from 'expo-router';
 import MenuItem from '@/components/MenuItem';
 import ConfirmationModal from '@/components/ConfirmationModal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { usePopup } from '@/context/PopupContext'; // Use the custom hook
+import axiosInstance from '@/api/axiosInstance';
+import { DELETE_USER_API_ADDRESS } from '@/constants/Variables';
 
 const SettingsMain = () => {
     const router = useRouter();
     const [isLogoutModalVisible, setLogoutModalVisible] = useState<boolean>(false);
+    const [isDeleteAccountModalVisible, setDeleteAccountModalVisible] = useState<boolean>(false);
+    const { showPopup } = usePopup(); // Use the custom hook to access showPopup
 
     // Handler to navigate to different screens
     const navigateTo = (screen: string) => {
-        router.push(`/settings/${screen}`);
+        router.push(`/settings/${screen}` as Href);
     };
 
     // Logout handlers
@@ -31,25 +33,47 @@ const SettingsMain = () => {
         setLogoutModalVisible(true);
     };
 
-    const handleLogoutConfirm = () => {
+    const handleLogoutConfirm = async () => {
         setLogoutModalVisible(false);
-        handleLogout();
+        try {
+            await AsyncStorage.removeItem('token');
+            showPopup('You have been logged out.');
+            router.replace('/auth/login');
+        } catch (error) {
+            console.error('Error logging out:', error);
+            showPopup('An error occurred during logout.');
+        }
     };
 
     const handleLogoutCancel = () => {
         setLogoutModalVisible(false);
     };
 
-    // Logout function
-    const handleLogout = async () => {
+    // Delete Account handlers
+    const handleDeleteAccountPress = () => {
+        setDeleteAccountModalVisible(true);
+    };
+
+    const handleDeleteAccountConfirm = async () => {
+        setDeleteAccountModalVisible(false);
         try {
-            await AsyncStorage.removeItem('token');
-            Alert.alert('Logged Out', 'You have been logged out.');
-            router.replace('/auth/login');
+            // Call your API to delete the account here
+            // Ensure you reach your endpoint
+            const response = await axiosInstance.put(DELETE_USER_API_ADDRESS);
+
+            if (response.status === 200) {
+                await AsyncStorage.removeItem('token'); // Clear the token
+                showPopup('Your account has been deleted.'); // Show success message
+                router.replace('/auth/login'); // Navigate to login page
+            }
         } catch (error) {
-            console.error('Error logging out:', error);
-            Alert.alert('Error', 'An error occurred during logout.');
+            console.error('Error deleting account:', error);
+            showPopup('An error occurred while deleting the account.'); // Show error message
         }
+    };
+
+    const handleDeleteAccountCancel = () => {
+        setDeleteAccountModalVisible(false);
     };
 
     return (
@@ -69,7 +93,7 @@ const SettingsMain = () => {
                         onPress={() => navigateTo('languages')}
                     />
                     <MenuItem
-                        iconName="access-point" // Ensure this is a valid icon name
+                        iconName="access-point"
                         title="Accessibility"
                         onPress={() => navigateTo('accessibility')}
                     />
@@ -85,8 +109,8 @@ const SettingsMain = () => {
                     />
                     <MenuItem
                         iconName="bell"
-                        title="Notifications"
-                        onPress={() => navigateTo('notifications')}
+                        title="NotificationsScreen"
+                        onPress={() => navigateTo('notificationsscreen')}
                     />
                 </View>
 
@@ -125,14 +149,28 @@ const SettingsMain = () => {
                     <MaterialCommunityIcons name="logout" size={24} color="#fff" />
                     <Text style={styles.logoutButtonText}>Logout</Text>
                 </TouchableOpacity>
+
+                {/* Delete Account Button */}
+                <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteAccountPress}>
+                    <MaterialCommunityIcons name="delete" size={24} color="#fff" />
+                    <Text style={styles.deleteButtonText}>Delete Account</Text>
+                </TouchableOpacity>
             </ScrollView>
 
-            {/* Confirmation Modal */}
+            {/* Logout Confirmation Modal */}
             <ConfirmationModal
                 visible={isLogoutModalVisible}
                 message="Are you sure you want to logout?"
                 onConfirm={handleLogoutConfirm}
                 onCancel={handleLogoutCancel}
+            />
+
+            {/* Delete Account Confirmation Modal */}
+            <ConfirmationModal
+                visible={isDeleteAccountModalVisible}
+                message="Are you sure you want to delete your account? This action cannot be undone."
+                onConfirm={handleDeleteAccountConfirm}
+                onCancel={handleDeleteAccountCancel}
             />
         </SafeAreaView>
     );
@@ -167,6 +205,21 @@ const styles = StyleSheet.create({
         marginTop: 20,
     },
     logoutButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        marginLeft: 10,
+        fontWeight: 'bold',
+    },
+    deleteButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: Colors.dark.danger, // Use a danger color for delete
+        padding: 15,
+        borderRadius: 8,
+        justifyContent: 'center',
+        marginTop: 10,
+    },
+    deleteButtonText: {
         color: '#fff',
         fontSize: 16,
         marginLeft: 10,

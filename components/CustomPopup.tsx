@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         padding: 20,
         width: '80%',
-        borderColor: Colors.dark.primary,
+        borderColor: Colors.dark.accent,
         borderWidth: 1,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         paddingVertical: 6,
         paddingHorizontal: 12,
-        backgroundColor: Colors.dark.primary,
+        backgroundColor: Colors.dark.accent,
         borderRadius: 5,
     },
     closeButtonText: {

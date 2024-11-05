@@ -11,6 +11,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { CategoryDataContext, ExpenseDataContext, MethodDataContext, TagDataContext, TypeDataContext } from '@/constants/Context';
 import { DataType, Tag, Method, Type, Category } from '@/constants/Types';
 import { AuthProvider } from '@/context/AuthContext';
+import { PopupProvider } from './../context/PopupContext';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -46,10 +47,12 @@ export default function RootLayout() {
             <TypeDataContext.Provider value={{ types, setTypes }}>
               <MethodDataContext.Provider value={{ methods, setMethods }}>
                 <CategoryDataContext.Provider value={{ category, setCategory }}>
-                  <Stack>
-                    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                    <Stack.Screen name="auth" options={{ headerShown: false }} />
-                  </Stack>
+                  <PopupProvider>
+                    <Stack>
+                      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                      <Stack.Screen name="auth" options={{ headerShown: false }} />
+                    </Stack>
+                  </PopupProvider>
                 </CategoryDataContext.Provider>
               </MethodDataContext.Provider>
             </TypeDataContext.Provider>

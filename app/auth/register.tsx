@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import {
     StyleSheet,
     View,
@@ -9,20 +9,17 @@ import { Colors } from '@/constants/Colors';
 import { Input, Text } from '@rneui/base';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import axiosInstance from '../../api/axiosInstance';
-import { Href, useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AuthContext } from "@/context/AuthContext";
+import { useRouter } from 'expo-router';
 import { usePopup } from '@/context/PopupContext'; // Use the custom hook
 
-const Login = () => {
+const Register = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const router = useRouter();
     const [loading, setLoading] = useState(false);
-    const { setIsAuthenticated } = useContext(AuthContext);
+    const router = useRouter();
     const { showPopup } = usePopup(); // Use the custom hook to access showPopup
 
-    const handleLogin = async () => {
+    const handleRegister = async () => {
         if (!username || !password) {
             showPopup('Please enter both username and password.');
             return;
@@ -30,29 +27,22 @@ const Login = () => {
 
         setLoading(true); // Show loading indicator
         try {
-            // Attempt to log in
-            const response = await axiosInstance.post('/login', {
+            // Attempt to register
+            const response = await axiosInstance.post('/register', {
                 username,
                 password,
             });
 
-            const { token } = response.data;
+            showPopup('Account created successfully. Please log in.');
 
-            // Store the token securely
-            await AsyncStorage.setItem('token', token);
-            setIsAuthenticated(true);
-
-            // Show a success popup message
-            showPopup('You are now logged in.');
-
-            // Navigate to the Dashboard immediately
-            router.replace('/dashboard');
+            // Navigate to the Login page after successful registration
+            router.replace('/auth/login');
         } catch (error: any) {
-            console.error('Error in handleLogin:', error);
-            if (error.response && error.response.status === 401) {
-                showPopup('Invalid credentials. Please try again.');
+            console.error('Error in handleRegister:', error);
+            if (error.response && error.response.status === 400) {
+                showPopup('Username already exists.');
             } else {
-                showPopup('An error occurred during login. Please try again later.');
+                showPopup('An error occurred during registration. Please try again.');
             }
         } finally {
             setLoading(false); // Hide loading indicator
@@ -62,7 +52,7 @@ const Login = () => {
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.headerTextStyle}>
-                <Text style={styles.headerText}>Login</Text>
+                <Text style={styles.headerText}>Register</Text>
             </View>
             <View style={styles.inputContainer}>
                 <Input
@@ -111,23 +101,24 @@ const Login = () => {
                 />
                 <TouchableOpacity
                     style={styles.submitButton}
-                    onPress={handleLogin}
+                    onPress={handleRegister}
                     disabled={loading}
                 >
                     <Text style={styles.buttonText}>
-                        {loading ? 'Logging in...' : 'Login'}
+                        {loading ? 'Creating Account...' : 'Register'}
                     </Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => router.replace('/auth/register' as Href)}>
-                    <Text style={styles.linkText}>Don't have an account? Create one</Text>
-                </TouchableOpacity>
 
+                {/* Navigate to Login */}
+                <TouchableOpacity onPress={() => router.replace('/auth/login')}>
+                    <Text style={styles.linkText}>Already have an account? Log in</Text>
+                </TouchableOpacity>
             </View>
         </SafeAreaView>
     );
 };
 
-export default Login;
+export default Register;
 
 const styles = StyleSheet.create({
     container: {

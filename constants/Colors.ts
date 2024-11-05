@@ -13,7 +13,8 @@ const accentLight = '#6200EE'; // Bright accent color
 const textLight = '#212121'; // Dark gray for text
 const textSecondaryLight = '#757575'; // Lighter gray for secondary text
 const incomeLight = "#4CAF50"; // Green for income
-
+const dangerDark = '#FF5252'; // A bright red for dark mode
+const dangerLight = '#FF1744'; // A more vibrant red for light mode
 export const Colors = {
   light: {
     text: textLight,
@@ -28,6 +29,7 @@ export const Colors = {
     tabIconDefault: '#757575',
     tabIconSelected: '#6200EE',
     income: incomeLight,
+    danger: dangerLight,
   },
   dark: {
     text: textDark,
@@ -42,5 +44,6 @@ export const Colors = {
     tabIconDefault: '#888888',
     tabIconSelected: '#FFFFFF',
     income: incomeDark,
+    danger: dangerDark,
   },
 };

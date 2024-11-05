@@ -6,7 +6,6 @@ import {
   SectionList,
   TouchableOpacity,
   View,
-  Alert,
   Platform,
   UIManager,
 } from 'react-native';
@@ -157,11 +156,11 @@ const Tags = () => {
         );
         setPopupMessage('Tag created successfully.');
       }
-      setPopupVisible(true);
     } catch (error) {
       console.error('Failed to save tag:', error);
-      Alert.alert('Error', 'Failed to save tag. Please try again.');
+      setPopupMessage('Failed to save tag. Please try again.');
     } finally {
+      setPopupVisible(true);
       setEditing(false);
       setItemToEdit(null);
     }
@@ -178,11 +177,11 @@ const Tags = () => {
             : null
         );
         setPopupMessage('Tag deleted successfully.');
-        setPopupVisible(true);
       } catch (error) {
         console.error('Failed to delete tag:', error);
-        Alert.alert('Error', 'Failed to delete tag. Please try again.');
+        setPopupMessage('Failed to delete tag. Please try again.');
       } finally {
+        setPopupVisible(true);
         setDeleting(false);
         setItemToDelete(null);
       }
