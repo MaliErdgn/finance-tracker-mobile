@@ -3,8 +3,10 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BASE_URL } from '@/constants/Variables';
 import { getAuthToken, setAuthToken } from '@/utils/authToken';
-import { AuthContext } from '@/context/AuthContext';
-import { useRouter } from 'expo-router';
+import EventEmitter from 'events';
+
+// Create an event emitter for logout events
+export const authEventEmitter = new EventEmitter();
 
 // Create an axios instance
 const axiosInstance = axios.create({
@@ -18,9 +20,17 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   async (config) => {
     const token = getAuthToken() || (await AsyncStorage.getItem('accessToken'));
-    if (token && config.headers) {
+
+    // Exclude login and register endpoints
+    if (
+      token &&
+      config.headers &&
+      !config.url?.endsWith('/login') &&
+      !config.url?.endsWith('/register')
+    ) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
+
     return config;
   },
   (error) => Promise.reject(error)
@@ -36,17 +46,17 @@ axiosInstance.interceptors.response.use(
     if (
       error.response &&
       error.response.status === 401 &&
-      !originalRequest._retry
+      !originalRequest._retry &&
+      !originalRequest.url.endsWith('/refresh-token')
     ) {
       originalRequest._retry = true;
       try {
         // Attempt to get a new access token using the refresh token
         const refreshToken = await AsyncStorage.getItem('refreshToken');
         if (refreshToken) {
-          const response = await axios.post(
-            `${BASE_URL}/finance-tracker/api/refresh-token`,
-            { refreshToken }
-          );
+          const response = await axiosInstance.post('/finance-tracker/api/refresh-token', {
+            refreshToken,
+          });
 
           const { accessToken: newAccessToken } = response.data;
           await AsyncStorage.setItem('accessToken', newAccessToken);
@@ -55,16 +65,17 @@ axiosInstance.interceptors.response.use(
           // Update the original request with the new token and retry
           originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
           return axiosInstance(originalRequest);
+        } else {
+          // No refresh token available, emit logout event
+          authEventEmitter.emit('logout');
         }
       } catch (refreshError) {
         console.error('Error refreshing token:', refreshError);
-        // Clear tokens and redirect to login if refresh fails
+        // Clear tokens and emit logout event
         await AsyncStorage.removeItem('accessToken');
         await AsyncStorage.removeItem('refreshToken');
         setAuthToken(null);
-        // Optionally, navigate to login page
-        const router = useRouter();
-        router.replace('/auth/login');
+        authEventEmitter.emit('logout');
         return Promise.reject(refreshError);
       }
     }
