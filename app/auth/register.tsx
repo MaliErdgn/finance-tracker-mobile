@@ -29,7 +29,7 @@ const Register = () => {
         setLoading(true);
         try {
             // Attempt to register
-            const response = await axiosInstance.post('/finance-tracker/api/register', {
+            const response = await axiosInstance.post('/register', {
                 username,
                 password,
             });

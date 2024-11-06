@@ -3,7 +3,7 @@ import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { setAuthToken } from '@/utils/authToken';
-import { authEventEmitter } from '@/api/axiosInstance';
+import { setLogoutHandler } from '@/utils/authHelper';
 
 interface AuthContextProps {
   isAuthenticated: boolean;
@@ -39,16 +39,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsLoading(false);
     };
     checkAuth();
-
-    // Listen for logout events
-    const handleLogout = () => {
-      logout();
-    };
-    authEventEmitter.on('logout', handleLogout);
-
-    return () => {
-      authEventEmitter.off('logout', handleLogout);
-    };
   }, []);
 
   // Function to log in the user
@@ -68,6 +58,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsAuthenticated(false);
     router.replace('/auth/login'); // Navigate to Login after logout
   };
+
+  // Set the logout handler when the component mounts
+  useEffect(() => {
+    setLogoutHandler(logout);
+  }, []);
 
   return (
     <AuthContext.Provider

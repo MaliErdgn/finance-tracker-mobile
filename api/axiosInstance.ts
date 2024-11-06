@@ -3,10 +3,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BASE_URL } from '@/constants/Variables';
 import { getAuthToken, setAuthToken } from '@/utils/authToken';
-import EventEmitter from 'events';
-
-// Create an event emitter for logout events
-export const authEventEmitter = new EventEmitter();
+import { getLogoutHandler } from '@/utils/authHelper';
 
 // Create an axios instance
 const axiosInstance = axios.create({
@@ -54,9 +51,10 @@ axiosInstance.interceptors.response.use(
         // Attempt to get a new access token using the refresh token
         const refreshToken = await AsyncStorage.getItem('refreshToken');
         if (refreshToken) {
-          const response = await axiosInstance.post('/finance-tracker/api/refresh-token', {
-            refreshToken,
-          });
+          const response = await axios.post(
+            `${BASE_URL}/refresh-token`,
+            { refreshToken }
+          );
 
           const { accessToken: newAccessToken } = response.data;
           await AsyncStorage.setItem('accessToken', newAccessToken);
@@ -66,16 +64,22 @@ axiosInstance.interceptors.response.use(
           originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
           return axiosInstance(originalRequest);
         } else {
-          // No refresh token available, emit logout event
-          authEventEmitter.emit('logout');
+          // No refresh token, need to logout
+          const logout = getLogoutHandler();
+          if (logout) {
+            logout();
+          }
         }
       } catch (refreshError) {
         console.error('Error refreshing token:', refreshError);
-        // Clear tokens and emit logout event
+        // Clear tokens and redirect to login if refresh fails
         await AsyncStorage.removeItem('accessToken');
         await AsyncStorage.removeItem('refreshToken');
         setAuthToken(null);
-        authEventEmitter.emit('logout');
+        const logout = getLogoutHandler();
+        if (logout) {
+          logout();
+        }
         return Promise.reject(refreshError);
       }
     }

@@ -31,7 +31,7 @@ const Login = () => {
         setLoading(true);
         try {
             // Attempt to log in
-            const response = await axiosInstance.post('/finance-tracker/api/login', {
+            const response = await axiosInstance.post('/login', {
                 username,
                 password,
             });
