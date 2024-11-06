@@ -11,34 +11,34 @@ import { Input, Text } from '@rneui/base';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import axiosInstance from '@/api/axiosInstance';
 import { useRouter } from 'expo-router';
-import { usePopup } from '@/context/PopupContext'; // Use the custom hook
+import { usePopup } from '@/context/PopupContext';
 
 const Register = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const router = useRouter();
-    const { showPopup } = usePopup(); // Use the custom hook to access showPopup
+    const { showPopup } = usePopup();
 
     const handleRegister = async () => {
         if (!username || !password) {
             showPopup('Please enter both username and password.');
             return;
         }
-    
-        setLoading(true); // Show loading indicator
+
+        setLoading(true);
         try {
             // Attempt to register
-            const response = await axiosInstance.post('/register', {
+            const response = await axiosInstance.post('/finance-tracker/api/register', {
                 username,
                 password,
             });
-    
+
             showPopup('Account created successfully. Please log in.');
             router.replace('/auth/login'); // Navigate to the Login page
         } catch (error: any) {
             console.error('Error in handleRegister:', error);
-    
+
             // Handle validation errors
             if (error.response && error.response.status === 400) {
                 const { errors } = error.response.data;
@@ -52,7 +52,7 @@ const Register = () => {
                 showPopup('An error occurred during registration. Please try again.');
             }
         } finally {
-            setLoading(false); // Hide loading indicator
+            setLoading(false);
         }
     };
     return (
@@ -115,7 +115,7 @@ const Register = () => {
                     </Text>
                 </TouchableOpacity>
 
-                {/* Navigate to Login */}  
+                {/* Navigate to Login */}
                 <TouchableOpacity onPress={() => router.replace('/auth/login')}>
                     <Text style={styles.linkText}>Already have an account? Log in</Text>
                 </TouchableOpacity>
