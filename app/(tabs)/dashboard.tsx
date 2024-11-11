@@ -1,8 +1,6 @@
 import { useCallback, useContext, useEffect, useState } from "react";
 import {
   StyleSheet,
-  Dimensions,
-  ScaledSize,
   LayoutAnimation,
   Platform,
   UIManager,
@@ -16,7 +14,7 @@ import { Text } from "@rneui/base";
 import { Colors } from "@/constants/Colors";
 
 import DataRow from "@/components/DataRow";
-import { DataType, RootStackParamList } from "@/constants/Types";
+import { DataType } from "@/constants/Types";
 import HeaderArea from "@/components/HeaderArea";
 import {
   CategoryDataContext,
@@ -25,17 +23,22 @@ import {
   TagDataContext,
   TypeDataContext,
 } from "@/constants/Context";
-import { useFocusEffect } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import DeleteData from "@/components/DeleteData";
 import EditData from "@/components/EditData";
-import AsyncStorage from "@react-native-async-storage/async-storage"
-// import { NavigationProp, useNavigation } from "@react-navigation/native";
-import { useRouter } from "expo-router";
-import { CATEGORIES_API_ADDRESS, DATA_API_ADDRESS, DELETE_DATA_API_ADDRESS, DELETE_TAG_API_ADDRESS, DELETE_USER_API_ADDRESS, METHOD_API_ADDRESS, TAGS_API_ADDRESS, TYPES_API_ADDRESS } from "@/constants/Variables";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  CATEGORIES_API_ADDRESS,
+  DATA_API_ADDRESS,
+  DELETE_DATA_API_ADDRESS,
+  DELETE_TAG_API_ADDRESS,
+  DELETE_USER_API_ADDRESS,
+  METHOD_API_ADDRESS,
+  TAGS_API_ADDRESS,
+  TYPES_API_ADDRESS,
+} from "@/constants/Variables";
 import CustomPopup from '@/components/CustomPopup';
 import { AuthContext } from "@/context/AuthContext";
-
-
 
 if (
   Platform.OS === "android" &&
@@ -44,10 +47,9 @@ if (
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-
 const Dashboard = () => {
-  const router = useRouter()
-  const { isAuthenticated, setIsAuthenticated } = useContext(AuthContext)
+  const router = useRouter();
+  const { isAuthenticated, logout } = useContext(AuthContext); // Use logout instead of setIsAuthenticated
 
   const { data, setData } = useContext(ExpenseDataContext);
   const { tags, setTags } = useContext(TagDataContext);
@@ -59,26 +61,23 @@ const Dashboard = () => {
   const [sortBy, setSortBy] = useState<string | null>("date");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
-
   const [deleting, setDeleting] = useState<boolean>(false);
-  const [itemToDelete, setItemToDelete] = useState<DataType | null>(null)
+  const [itemToDelete, setItemToDelete] = useState<DataType | null>(null);
 
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const [popupVisible, setPopupVisible] = useState<boolean>(false);
-  const [popupMessage, setPopupMessage] = useState<string>('');
+  const [popupMessage, setPopupMessage] = useState<string>("");
 
   const [editing, setEditing] = useState<boolean>(false);
   const [itemToEdit, setItemToEdit] = useState<DataType | null>(null);
-
 
   useEffect(() => {
     if (!isAuthenticated) {
       router.replace("/auth/login");
     }
   }, [isAuthenticated]);
-
 
   useFocusEffect(
     useCallback(() => {
@@ -93,7 +92,7 @@ const Dashboard = () => {
           setError("Failed to fetch expenses");
           if (err.response && (err.response.status === 401 || err.response.status === 403)) {
             await AsyncStorage.removeItem("token");
-            setIsAuthenticated(false)
+            logout(); // Use logout function to handle unauthorized cases
           }
         } finally {
           setLoading(false);
@@ -108,10 +107,11 @@ const Dashboard = () => {
           console.error("Failed to fetch tags", err);
           if (err.response && (err.response.status === 401 || err.response.status === 403)) {
             await AsyncStorage.removeItem("token");
-            setIsAuthenticated(false)
+            logout();
           }
         }
       };
+
       const fetchMethods = async () => {
         try {
           const response = await axiosInstance.get(METHOD_API_ADDRESS);
@@ -120,7 +120,7 @@ const Dashboard = () => {
           console.error("Failed to fetch methods", err);
           if (err.response && (err.response.status === 401 || err.response.status === 403)) {
             await AsyncStorage.removeItem("token");
-            setIsAuthenticated(false)
+            logout();
           }
         }
       };
@@ -133,7 +133,7 @@ const Dashboard = () => {
           console.error("Failed to fetch types", err);
           if (err.response && (err.response.status === 401 || err.response.status === 403)) {
             await AsyncStorage.removeItem("token");
-            setIsAuthenticated(false)
+            logout();
           }
         }
       };
@@ -146,7 +146,7 @@ const Dashboard = () => {
           console.error("Failed to fetch categories", err);
           if (err.response && (err.response.status === 401 || err.response.status === 403)) {
             await AsyncStorage.removeItem("token");
-            setIsAuthenticated(false)
+            logout();
           }
         }
       };
@@ -160,23 +160,14 @@ const Dashboard = () => {
     }, [])
   );
 
-
   const AssignMethod = (id: number): string => {
     const assignedMethod = methods?.find((m) => m.id === id);
-    if (assignedMethod) {
-      return assignedMethod.method_name;
-    } else {
-      return "Unknown Method";
-    }
+    return assignedMethod ? assignedMethod.method_name : "Unknown Method";
   };
 
   const AssignType = (id: number): string => {
     const assignedType = types?.find((t) => t.id === id);
-    if (assignedType) {
-      return assignedType.type_name;
-    } else {
-      return "Unknown Type";
-    }
+    return assignedType ? assignedType.type_name : "Unknown Type";
   };
 
   const AssignCategory = (id: number): string => {
@@ -185,22 +176,14 @@ const Dashboard = () => {
       const assignedCategory = category?.find(
         (c) => c.id === assignedTag.category_id
       );
-      if (assignedCategory) {
-        return assignedCategory.category_name;
-      } else {
-        return "Unknown Category";
-      }
-    } else {
-      return "Unknown Tag for the Category";
+      return assignedCategory ? assignedCategory.category_name : "Unknown Category";
     }
+    return "Unknown Tag for the Category";
   };
+
   const AssignTag = (id: number): string => {
     const assignedTag = tags?.find((t) => t.id === id);
-    if (assignedTag) {
-      return assignedTag.tag_name;
-    } else {
-      return "Unknown Tag";
-    }
+    return assignedTag ? assignedTag.tag_name : "Unknown Tag";
   };
 
   const toggleExpand = useCallback((id: number) => {
@@ -233,21 +216,20 @@ const Dashboard = () => {
   };
 
   const confirmDelete = (item: DataType) => {
-    setItemToDelete(item)
+    setItemToDelete(item);
     setDeleting(true);
   };
+
 
   const handleDelete = async (item: DataType | null) => {
     if (item) {
       try {
         await axiosInstance.put(DELETE_DATA_API_ADDRESS(item.id));
         setData((prevData) => (prevData || []).filter((exp) => exp.id !== item.id));
-        // Show success popup
         setPopupMessage('Item deleted successfully.');
         setPopupVisible(true);
       } catch (error) {
         console.error('Failed to delete item:', error);
-        // Show error popup
         setPopupMessage('Failed to delete item.');
         setPopupVisible(true);
       } finally {
@@ -257,41 +239,16 @@ const Dashboard = () => {
     }
   };
 
-
-  const deleteTag = async (tagId: number) => {
-    try {
-      await axiosInstance.put(DELETE_TAG_API_ADDRESS(tagId));
-      // Update the state to remove the deleted tag from the list
-      setTags((prevTags) => (prevTags || []).filter((tag) => tag.id !== tagId));
-    } catch (error) {
-      console.error('Failed to delete tag:', error);
-    }
-  };
-
-  const deleteUserAccount = async () => {
-    try {
-      await axiosInstance.put(DELETE_USER_API_ADDRESS);
-      // Perform logout actions
-      await AsyncStorage.removeItem('token');
-      router.replace("/auth/login")
-    } catch (error) {
-      console.error('Failed to delete account:', error);
-    }
-  };
-
   const handleEdit = async (item: DataType | null, updatedData: any) => {
     if (item) {
       try {
-        // Make API call to update the item
         await axiosInstance.put(`/expenses/${item.id}/edit`, updatedData);
-        // Update the state to reflect the changes
         setData((prevData) => {
           if (!prevData) return prevData;
           return prevData.map((exp) =>
             exp.id === item.id ? { ...exp, ...updatedData } : exp
           );
         });
-        // Show success message
         setPopupMessage('Item updated successfully.');
         setPopupVisible(true);
       } catch (error) {
@@ -309,7 +266,6 @@ const Dashboard = () => {
     setItemToEdit(item);
     setEditing(true);
   };
-
 
   if (loading) {
     return (
@@ -393,6 +349,7 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
