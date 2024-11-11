@@ -5697,6 +5697,11 @@ graphql@15.8.0:
   resolved "https://registry.npmjs.org/graphql/-/graphql-15.8.0.tgz"
   integrity sha512-5gghUc24tP9HRznNpV2+FIoq3xKkj5dTQqf4v0CpdPbFVwFkWoxOM+o+2OC9ZSvjEMTjfmG9QT+gcvggTwW1zw==
 
+green-jwt@0.0.8-alpha:
+  version "0.0.8-alpha"
+  resolved "https://registry.yarnpkg.com/green-jwt/-/green-jwt-0.0.8-alpha.tgz#b24d9922f8af61c4823d3e357da25632fa8009a3"
+  integrity sha512-d6/AbWDaIOlRBgkN2Dc8SgozOMkKRr7676SEddn8CijGwmzcfDcZmSAn4gS+Kjm+xPsEE14XkYDCIl8ghSZu8w==
+
 has-ansi@^2.0.0:
   version "2.0.0"
   resolved "https://registry.npmjs.org/has-ansi/-/has-ansi-2.0.0.tgz"
@@ -7003,6 +7008,13 @@ jwt-decode@^4.0.0:
   version "4.0.0"
   resolved "https://registry.npmjs.org/jwt-decode/-/jwt-decode-4.0.0.tgz"
   integrity sha512-+KJGIyHgkGuIq3IEBNftfhW/LfWhXUIY6OmyVWjliu5KH1y0fw7VQ8YndE2O4qZdMSd9SqbnC8GOcZEy0Om7sA==
+
+jwt-decoder@^0.0.0:
+  version "0.0.0"
+  resolved "https://registry.yarnpkg.com/jwt-decoder/-/jwt-decoder-0.0.0.tgz#aa4fc48aec0a7560e1f7a9050dfd68e6980b79be"
+  integrity sha512-LP6MurVH5ZzynAMEAx7tmvXBWyWSq8TK9NAbfzpqcBfn2bW3FIs8HpxcUwKpbmrPIlRVOXjYa7yI2mDvx/uY9A==
+  dependencies:
+    green-jwt "0.0.8-alpha"
 
 kind-of@^6.0.2:
   version "6.0.3"

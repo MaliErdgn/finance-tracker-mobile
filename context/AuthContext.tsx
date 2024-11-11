@@ -2,6 +2,8 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
+import axiosInstance from '@/api/axiosInstance';
+const jwt_decode = require('jwt-decode');
 import { setAuthToken } from '@/utils/authToken';
 import { setLogoutHandler } from '@/utils/authHelper';
 
@@ -19,9 +21,9 @@ interface AuthProviderProps {
 
 export const AuthContext = createContext<AuthContextProps>({
   isAuthenticated: false,
-  login: () => { },
-  logout: () => { },
-  setIsAuthenticated: () => { },
+  login: () => {},
+  logout: () => {},
+  setIsAuthenticated: () => {},
   isLoading: true,
 });
 
@@ -30,24 +32,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const router = useRouter();
 
-  // Check authentication status on component mount
-  useEffect(() => {
-    const checkAuth = async () => {
-      const token = await AsyncStorage.getItem('accessToken');
-      setAuthToken(token);
-      setIsAuthenticated(!!token);
-      setIsLoading(false);
-    };
-    checkAuth();
-  }, []);
+  // Function to decode and check if token is expired
+  const checkIfTokenExpired = (token: string) => {
+    const decodedToken: any = jwt_decode(token);
+    const currentTime = Date.now() / 1000;
+    return decodedToken.exp < currentTime;
+  };
 
-  // Function to log in the user
+  // Function to log in the user and save tokens
   const login = async (accessToken: string, refreshToken: string) => {
     await AsyncStorage.setItem('accessToken', accessToken);
     await AsyncStorage.setItem('refreshToken', refreshToken);
     setAuthToken(accessToken);
     setIsAuthenticated(true);
-    router.replace('/(tabs)/dashboard'); // Navigate to Dashboard after login
+    router.replace('/(tabs)/dashboard');
   };
 
   // Function to log out the user
@@ -56,12 +54,43 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     await AsyncStorage.removeItem('refreshToken');
     setAuthToken(null);
     setIsAuthenticated(false);
-    router.replace('/auth/login'); // Navigate to Login after logout
+    router.replace('/auth/login');
   };
 
-  // Set the logout handler when the component mounts
+  // Set the logout handler globally
   useEffect(() => {
     setLogoutHandler(logout);
+  }, []);
+
+  // Check tokens and refresh if necessary on app launch
+  useEffect(() => {
+    const checkTokenOnLaunch = async () => {
+      const accessToken = await AsyncStorage.getItem('accessToken');
+      const refreshToken = await AsyncStorage.getItem('refreshToken');
+
+      if (accessToken) {
+        setAuthToken(accessToken);
+        setIsAuthenticated(true);
+
+        const isTokenExpired = checkIfTokenExpired(accessToken);
+        if (isTokenExpired && refreshToken) {
+          try {
+            const response = await axiosInstance.post('/refresh-token', { refreshToken });
+            const { accessToken: newAccessToken } = response.data;
+            await AsyncStorage.setItem('accessToken', newAccessToken);
+            setAuthToken(newAccessToken);
+          } catch (error) {
+            console.error('Error refreshing token:', error);
+            logout();
+          }
+        }
+      } else {
+        setIsAuthenticated(false);
+      }
+      setIsLoading(false);
+    };
+
+    checkTokenOnLaunch();
   }, []);
 
   return (
