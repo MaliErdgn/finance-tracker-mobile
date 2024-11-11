@@ -47,3 +47,4 @@ export type RootStackParamList = {
     aboutMe: undefined;
     checkoutApps: undefined;
 };
+
