@@ -27,37 +27,41 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const router = useRouter();
 
-  // Log in function
+  // Function to log in the user and save tokens
   const login = async (accessToken: string, refreshToken: string) => {
     await AsyncStorage.setItem('accessToken', accessToken);
     await AsyncStorage.setItem('refreshToken', refreshToken);
-    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
     setIsAuthenticated(true);
     router.replace('/(tabs)/dashboard');
   };
 
-  // Log out function
+  // Function to log out the user
   const logout = async () => {
     await AsyncStorage.removeItem('accessToken');
     await AsyncStorage.removeItem('refreshToken');
-    delete axiosInstance.defaults.headers.common['Authorization'];
     setIsAuthenticated(false);
     router.replace('/auth/login');
   };
 
-  // Check token status on app load
+  // Check if tokens exist on app launch and set authentication state
   useEffect(() => {
     const checkAuthStatus = async () => {
-      const accessToken = await AsyncStorage.getItem('accessToken');
-      const refreshToken = await AsyncStorage.getItem('refreshToken');
+      try {
+        const accessToken = await AsyncStorage.getItem('accessToken');
+        const refreshToken = await AsyncStorage.getItem('refreshToken');
 
-      if (accessToken && refreshToken) {
-        axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
-        setIsAuthenticated(true);
-      } else {
-        setIsAuthenticated(false);
+        if (accessToken && refreshToken) {
+          axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+          setIsAuthenticated(true);
+          router.replace('/(tabs)/dashboard');
+        } else {
+          setIsAuthenticated(false);
+        }
+      } catch (error) {
+        console.error("Error initializing authentication:", error);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
     checkAuthStatus();
