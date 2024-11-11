@@ -3,7 +3,6 @@ import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import axiosInstance from '@/api/axiosInstance';
-const jwt_decode = require('jwt-decode');
 import { setAuthToken } from '@/utils/authToken';
 import { setLogoutHandler } from '@/utils/authHelper';
 
@@ -27,14 +26,28 @@ export const AuthContext = createContext<AuthContextProps>({
   isLoading: true,
 });
 
+// Define the decodeToken function
+const decodeToken = (token: string): any => {
+  const base64Url = token.split('.')[1];
+  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  const jsonPayload = decodeURIComponent(
+    atob(base64)
+      .split('')
+      .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+      .join('')
+  );
+
+  return JSON.parse(jsonPayload);
+};
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const router = useRouter();
 
   // Function to decode and check if token is expired
-  const checkIfTokenExpired = (token: string) => {
-    const decodedToken: any = jwt_decode(token);
+  const isTokenExpired = (token: string) => {
+    const decodedToken: any = decodeToken(token); // Using the inline decodeToken function
     const currentTime = Date.now() / 1000;
     return decodedToken.exp < currentTime;
   };
@@ -72,8 +85,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setAuthToken(accessToken);
         setIsAuthenticated(true);
 
-        const isTokenExpired = checkIfTokenExpired(accessToken);
-        if (isTokenExpired && refreshToken) {
+        const tokenExpired = isTokenExpired(accessToken);
+        if (tokenExpired && refreshToken) {
           try {
             const response = await axiosInstance.post('/refresh-token', { refreshToken });
             const { accessToken: newAccessToken } = response.data;
