@@ -27,17 +27,30 @@ export const AuthContext = createContext<AuthContextProps>({
 });
 
 // Define the decodeToken function
-const decodeToken = (token: string): any => {
-  const base64Url = token.split('.')[1];
-  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-  const jsonPayload = decodeURIComponent(
-    atob(base64)
-      .split('')
-      .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-      .join('')
-  );
+const decodeToken = (token: string): any | null => {
+  try {
+    const parts = token.split('.'); // Split the token by dots
 
-  return JSON.parse(jsonPayload);
+    // Check if the token has three parts (header, payload, signature)
+    if (parts.length !== 3) {
+      console.error("Invalid token structure");
+      return null;
+    }
+
+    const base64Url = parts[1]; // Extract payload part
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error("Failed to decode token:", error);
+    return null; // Return null if decoding fails
+  }
 };
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
@@ -46,14 +59,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const router = useRouter();
 
   // Function to decode and check if token is expired
-  const isTokenExpired = (token: string) => {
-    const decodedToken: any = decodeToken(token); // Using the inline decodeToken function
+  const isTokenExpired = (token: string | null) => {
+    // If the token is null or empty, treat it as expired
+    if (!token) return true;
+
+    const decodedToken = decodeToken(token);
+
+    if (!decodedToken) {
+      console.error("Invalid token, unable to decode");
+      return true;
+    }
+
     const currentTime = Date.now() / 1000;
     return decodedToken.exp < currentTime;
   };
 
   // Function to log in the user and save tokens
   const login = async (accessToken: string, refreshToken: string) => {
+    if (!accessToken || !refreshToken) {
+      console.error("Missing access or refresh token");
+      return;
+    }
     await AsyncStorage.setItem('accessToken', accessToken);
     await AsyncStorage.setItem('refreshToken', refreshToken);
     setAuthToken(accessToken);
@@ -85,19 +111,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setAuthToken(accessToken);
         setIsAuthenticated(true);
 
+        // Check if the access token is valid and not expired
         const tokenExpired = isTokenExpired(accessToken);
         if (tokenExpired && refreshToken) {
           try {
             const response = await axiosInstance.post('/refresh-token', { refreshToken });
             const { accessToken: newAccessToken } = response.data;
-            await AsyncStorage.setItem('accessToken', newAccessToken);
-            setAuthToken(newAccessToken);
+            if (newAccessToken) {
+              await AsyncStorage.setItem('accessToken', newAccessToken);
+              setAuthToken(newAccessToken);
+            } else {
+              console.error("No access token returned from refresh request");
+              logout();
+            }
           } catch (error) {
             console.error('Error refreshing token:', error);
-            logout();
+            logout(); // Log out if refreshing token fails
           }
         }
       } else {
+        console.warn("No access token found on app launch");
         setIsAuthenticated(false);
       }
       setIsLoading(false);
